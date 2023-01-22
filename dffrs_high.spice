@@ -1,0 +1,67 @@
+* SPICE3 file created from dffrs_high.ext - technology: scmos
+
+.include 0.25_models.txt
+
+.subckt DFFRS_HIGH Q Qm D CLK S R Vdd
+M1000 Qm CLK a_19_n26# Gnd CMOSN w=12u l=2u
++  ad=108p pd=60u as=180p ps=84u
+M1001 a_n4_n20# R Gnd Gnd CMOSN w=6u l=2u
++  ad=108p pd=60u as=664p ps=322u
+M1002 a_56_2# R a_n4_n20# Vdd CMOSP w=36u l=2u
++  ad=216p pd=84u as=432p ps=168u
+M1003 Q Qm Gnd Gnd CMOSN w=18u l=2u
++  ad=108p pd=48u as=0p ps=0u
+M1004 a_19_2# a_n4_n20# Vdd Vdd CMOSP w=108u l=2u
++  ad=648p pd=228u as=1872p ps=674u
+M1005 Gnd a_19_n26# a_n4_n20# Gnd CMOSN w=6u l=2u
++  ad=0p pd=0u as=0p ps=0u
+M1006 Vdd a_19_n26# a_56_2# Vdd CMOSP w=36u l=2u
++  ad=0p pd=0u as=0p ps=0u
+M1007 a_n4_n20# CLKN D Gnd CMOSN w=12u l=2u
++  ad=0p pd=0u as=72p ps=36u
+M1008 Gnd R Q Gnd CMOSN w=18u l=2u
++  ad=0p pd=0u as=0p ps=0u
+M1009 Qm Q Gnd Gnd CMOSN w=6u l=2u
++  ad=0p pd=0u as=0p ps=0u
+M1010 CLKN CLK Gnd Gnd CMOSN w=6u l=2u
++  ad=36p pd=24u as=0p ps=0u
+M1011 Qm CLKN a_19_n26# Vdd CMOSP w=36u l=2u
++  ad=468p pd=170u as=972p ps=314u
+M1012 a_159_2# Q Vdd Vdd CMOSP w=36u l=2u
++  ad=216p pd=84u as=0p ps=0u
+M1013 a_19_n26# S a_19_2# Vdd CMOSP w=108u l=2u
++  ad=0p pd=0u as=0p ps=0u
+M1014 a_19_n26# a_n4_n20# Gnd Gnd CMOSN w=18u l=2u
++  ad=0p pd=0u as=0p ps=0u
+M1015 Gnd S Qm Gnd CMOSN w=6u l=2u
++  ad=0p pd=0u as=0p ps=0u
+M1016 a_n4_n20# CLK D Vdd CMOSP w=36u l=2u
++  ad=0p pd=0u as=216p ps=84u
+M1017 a_121_2# Qm Vdd Vdd CMOSP w=108u l=2u
++  ad=648p pd=228u as=0p ps=0u
+M1018 CLKN CLK Vdd Vdd CMOSP w=18u l=2u
++  ad=108p pd=48u as=0p ps=0u
+M1019 Qm S a_159_2# Vdd CMOSP w=36u l=2u
++  ad=0p pd=0u as=0p ps=0u
+M1020 Gnd S a_19_n26# Gnd CMOSN w=18u l=2u
++  ad=0p pd=0u as=0p ps=0u
+M1021 Q R a_121_2# Vdd CMOSP w=108u l=2u
++  ad=864p pd=232u as=0p ps=0u
+C0 Gnd Q 6.07fF
+C1 Gnd CLK 67.70fF
+C2 R Gnd 4.29fF
+C3 Gnd S 4.29fF
+C4 a_19_n26# Vdd 25.74fF
+C5 CLKN Vdd 22.81fF
+C6 CLK Vdd 4.85fF
+C7 Gnd a_19_n26# 6.82fF
+C8 R Vdd 34.24fF
+C9 Gnd CLKN 8.82fF
+C10 Gnd a_n4_n20# 22.55fF
+C11 Vdd S 52.54fF
+C12 Qm Gnd 30.68fF
+C13 a_19_n26# 0 7.56fF
+C14 R 0 2.38fF
+C15 a_n4_n20# 0 4.74fF
+C16 S 0 2.38fF
+.ends DFFRS_HIGH

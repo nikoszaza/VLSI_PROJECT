@@ -1,0 +1,69 @@
+* SPICE3 file created from dffrs.ext - technology: scmos
+
+.include 0.25_models.txt
+
+.subckt DFFRS_LOW Q Qm D CLK S R Vdd
+M1000 a_61_n21# B Vdd Vdd CMOSP w=18u l=2u
++  ad=108p pd=48u as=972p ps=384u
+M1001 Gnd R A Gnd CMOSN w=3u l=2u
++  ad=550p pd=354u as=58p ps=44u
+M1002 a_136_14# Qm Vdd Vdd CMOSP w=54u l=2u
++  ad=324p pd=120u as=0p ps=0u
+M1003 Qm CLK B w_88_12# CMOSN w=6u l=2u
++  ad=58p pd=44u as=90p ps=54u
+M1004 B A Gnd Gnd CMOSN w=9u l=2u
++  ad=0p pd=0u as=0p ps=0u
+M1005 A R a_61_n21# Vdd CMOSP w=18u l=2u
++  ad=216p pd=96u as=0p ps=0u
+M1006 a_21_n2# A Vdd Vdd CMOSP w=54u l=2u
++  ad=324p pd=120u as=0p ps=0u
+M1007 Q Qm Gnd w_127_n14# CMOSN w=9u l=2u
++  ad=54p pd=30u as=0p ps=0u
+M1008 A CLK D Vdd CMOSP w=18u l=2u
++  ad=0p pd=0u as=108p ps=48u
+M1009 Q R a_136_14# Vdd CMOSP w=54u l=2u
++  ad=324p pd=120u as=0p ps=0u
+M1010 Gnd S B Gnd CMOSN w=9u l=2u
++  ad=0p pd=0u as=0p ps=0u
+M1011 a_n34_27# CLK Gnd Gnd CMOSN w=6u l=2u
++  ad=36p pd=24u as=0p ps=0u
+M1012 A a_n34_27# D Gnd CMOSN w=6u l=2u
++  ad=0p pd=0u as=36p ps=24u
+M1013 Qm S Gnd Gnd CMOSN w=3u l=2u
++  ad=0p pd=0u as=0p ps=0u
+M1014 a_175_n20# S Qm Vdd CMOSP w=18u l=2u
++  ad=108p pd=48u as=216p ps=96u
+M1015 B S a_21_n2# Vdd CMOSP w=54u l=2u
++  ad=432p pd=168u as=0p ps=0u
+M1016 Gnd R Q w_127_n14# CMOSN w=9u l=2u
++  ad=0p pd=0u as=0p ps=0u
+M1017 Gnd Q Qm Gnd CMOSN w=3u l=2u
++  ad=0p pd=0u as=0p ps=0u
+M1018 Qm a_n34_27# B Vdd CMOSP w=18u l=2u
++  ad=0p pd=0u as=0p ps=0u
+M1019 A B Gnd Gnd CMOSN w=3u l=2u
++  ad=0p pd=0u as=0p ps=0u
+M1020 Vdd Q a_175_n20# Vdd CMOSP w=18u l=2u
++  ad=0p pd=0u as=0p ps=0u
+M1021 a_n34_27# CLK Vdd Vdd CMOSP w=18u l=2u
++  ad=108p pd=48u as=0p ps=0u
+C0 Vdd Q 7.73fF
+C1 Gnd w_127_n14# 3.76fF
+C2 Vdd R 37.98fF
+C3 Gnd CLK 2.94fF
+C4 Gnd S 3.10fF
+C5 Vdd B 15.20fF
+C6 Gnd A 31.95fF
+C7 Gnd Qm 2.55fF
+C8 Vdd CLK 22.13fF
+C9 Vdd S 60.30fF
+C10 Gnd a_n34_27# 61.92fF
+C11 Vdd A 3.26fF
+C12 Vdd a_n34_27# 3.18fF
+C13 w_88_12# CLK 5.87fF
+C14 Q 0 19.52fF
+C15 a_n34_27# 0 5.26fF
+C16 Qm 0 4.98fF
+C17 R 0 3.33fF
+C18 Gnd 0 2.09fF
+.ends DFFRS_LOW

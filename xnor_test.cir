@@ -1,0 +1,19 @@
+.include xnor.spice
+.include xnor_high.spice
+.include xnor_multifinger.spice
+
+Vs vdd gnd 2.5
+VA A gnd 0 PULSE(0 2.5 14u 10n 10n 27u 56u 0)
+VB B gnd 0 PULSE(0 2.5 15u 10n 10n 10u 20u 0)
+X1 xnor_multi A B vdd XNOR_MULTI
+X2 xnor_high A B vdd XNOR_HIGH
+X3 xnor_low A B vdd XNOR_LOW
+.tran 1u 100u
+
+.control
+	run
+	plot A, B
+	plot xnor_multi, xnor_high, xnor_low
+.endc
+
+.end

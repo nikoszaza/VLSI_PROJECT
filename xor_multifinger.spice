@@ -1,0 +1,92 @@
+* SPICE3 file created from xor_multifinger.ext - technology: scmos
+
+.include 0.25_models.txt
+
+.subckt XOR_MULTI fxor A B vdd
+M1000 a_51_n27# BN Gnd Gnd CMOSN w=6u l=2u
++  ad=144p pd=96u as=244p ps=180u
+M1001 fxor B a_20_n7# Vdd CMOSP w=12u l=2u
++  ad=288p pd=144u as=288p ps=144u
+M1002 a_20_n7# AN Vdd Vdd CMOSP w=12u l=2u
++  ad=0p pd=0u as=432p ps=240u
+M1003 fxor B a_11_n27# Gnd CMOSN w=6u l=2u
++  ad=132p pd=92u as=144p ps=96u
+M1004 a_51_n27# AN fxor Gnd CMOSN w=6u l=2u
++  ad=0p pd=0u as=0p ps=0u
+M1005 BN B Vdd Vdd CMOSP w=6u l=2u
++  ad=72p pd=48u as=0p ps=0u
+M1006 AN A Gnd Gnd CMOSN w=3u l=2u
++  ad=44p pd=40u as=0p ps=0u
+M1007 a_11_n27# A Gnd Gnd CMOSN w=6u l=2u
++  ad=0p pd=0u as=0p ps=0u
+M1008 AN A Vdd Vdd CMOSP w=6u l=2u
++  ad=72p pd=48u as=0p ps=0u
+M1009 a_92_n7# BN fxor Vdd CMOSP w=12u l=2u
++  ad=288p pd=144u as=0p ps=0u
+M1010 Vdd A a_92_n7# Vdd CMOSP w=12u l=2u
++  ad=0p pd=0u as=0p ps=0u
+M1011 a_11_n27# B fxor Gnd CMOSN w=6u l=2u
++  ad=0p pd=0u as=0p ps=0u
+M1012 fxor AN a_51_n27# Gnd CMOSN w=6u l=2u
++  ad=0p pd=0u as=0p ps=0u
+M1013 BN B Gnd Gnd CMOSN w=3u l=2u
++  ad=44p pd=40u as=0p ps=0u
+M1014 Vdd AN a_20_n7# Vdd CMOSP w=12u l=2u
++  ad=0p pd=0u as=0p ps=0u
+M1015 Gnd B BN Gnd CMOSN w=3u l=2u
++  ad=0p pd=0u as=0p ps=0u
+M1016 a_20_n7# B fxor Vdd CMOSP w=12u l=2u
++  ad=0p pd=0u as=0p ps=0u
+M1017 a_92_n7# BN fxor Vdd CMOSP w=12u l=2u
++  ad=0p pd=0u as=0p ps=0u
+M1018 fxor B a_11_n27# Gnd CMOSN w=6u l=2u
++  ad=0p pd=0u as=0p ps=0u
+M1019 Gnd A AN Gnd CMOSN w=3u l=2u
++  ad=0p pd=0u as=0p ps=0u
+M1020 a_51_n27# BN Gnd Gnd CMOSN w=6u l=2u
++  ad=0p pd=0u as=0p ps=0u
+M1021 Vdd A a_92_n7# Vdd CMOSP w=12u l=2u
++  ad=0p pd=0u as=0p ps=0u
+M1022 Vdd B BN Vdd CMOSP w=6u l=2u
++  ad=0p pd=0u as=0p ps=0u
+M1023 Gnd B BN Gnd CMOSN w=3u l=2u
++  ad=0p pd=0u as=0p ps=0u
+M1024 Vdd AN a_20_n7# Vdd CMOSP w=12u l=2u
++  ad=0p pd=0u as=0p ps=0u
+M1025 a_20_n7# B fxor Vdd CMOSP w=12u l=2u
++  ad=0p pd=0u as=0p ps=0u
+M1026 AN A Vdd Vdd CMOSP w=6u l=2u
++  ad=0p pd=0u as=0p ps=0u
+M1027 a_11_n27# A Gnd Gnd CMOSN w=6u l=2u
++  ad=0p pd=0u as=0p ps=0u
+M1028 Vdd B BN Vdd CMOSP w=6u l=2u
++  ad=0p pd=0u as=0p ps=0u
+M1029 AN A Gnd Gnd CMOSN w=3u l=2u
++  ad=0p pd=0u as=0p ps=0u
+M1030 Gnd BN a_51_n27# Gnd CMOSN w=6u l=2u
++  ad=0p pd=0u as=0p ps=0u
+M1031 Vdd A AN Vdd CMOSP w=6u l=2u
++  ad=0p pd=0u as=0p ps=0u
+M1032 fxor BN a_92_n7# Vdd CMOSP w=12u l=2u
++  ad=0p pd=0u as=0p ps=0u
+M1033 fxor AN a_51_n27# Gnd CMOSN w=6u l=2u
++  ad=0p pd=0u as=0p ps=0u
+M1034 a_92_n7# A Vdd Vdd CMOSP w=12u l=2u
++  ad=0p pd=0u as=0p ps=0u
+M1035 Gnd A a_11_n27# Gnd CMOSN w=6u l=2u
++  ad=0p pd=0u as=0p ps=0u
+C0 Vdd B 18.26fF
+C1 A Vdd 54.68fF
+C2 Gnd AN 6.75fF
+C3 Gnd B 58.88fF
+C4 Gnd A 13.97fF
+C5 Gnd a_11_n27# 15.61fF
+C6 Gnd a_51_n27# 22.41fF
+C7 a_92_n7# Vdd 18.89fF
+C8 Vdd fxor 2.40fF
+C9 Vdd a_20_n7# 10.11fF
+C10 Vdd BN 9.78fF
+C11 Gnd BN 7.36fF
+C12 AN Vdd 35.18fF
+C13 fxor 0 7.71fF
+.ends XOR_MULTI

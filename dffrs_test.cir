@@ -1,0 +1,22 @@
+.include dffrs.spice
+.include dffrs_high.spice
+.include dffrs_multifinger.spice
+
+Vs vdd gnd 2.5
+Vin D gnd 0 PULSE(0 2.5 14u 10n 10n 27u 56u 0)
+Vclk clk gnd PULSE(0 2.5 15u 10n 10n 10u 20u 0)
+Vreset R gnd PWL(0 2.5 4u 2.5 4.1u 0)
+Vset S gnd 0
+X1 Q_multi Qm_mutli D clk S R vdd DFFRS_MULTI
+X2 Q_high Qm_high D clk S R vdd DFFRS_HIGH
+X3 Q_low Qm_low D clk S R vdd DFFRS_LOW
+ 
+
+.tran 1u 100u 
+.control
+	run
+	plot v(Q_low), v(Q_high), V(Q_multi), v(D)
+	plot v(clk), v(D)
+	plot S, R
+.endc
+.end

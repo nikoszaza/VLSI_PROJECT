@@ -1,0 +1,42 @@
+* SPICE3 file created from xor_high.ext - technology: scmos
+
+.include 0.25_models.txt
+
+
+.subckt XOR_HIGH fxor A B vdd
+M1000 a_1_n41# a_n31_n37# fxor Gnd CMOSN w=16u l=2u
++  ad=264p pd=98u as=96p ps=44u
+M1001 Gnd B a_29_n47# Gnd CMOSN w=8u l=2u
++  ad=198p pd=102u as=48p ps=28u
+M1002 a_1_n41# a_29_n47# Gnd Gnd CMOSN w=17u l=2u
++  ad=0p pd=0u as=0p ps=0u
+M1003 Gnd A a_n17_n41# Gnd CMOSN w=17u l=2u
++  ad=0p pd=0u as=264p ps=98u
+M1004 fxor B a_n17_n41# Gnd CMOSN w=16u l=2u
++  ad=0p pd=0u as=0p ps=0u
+M1005 Vdd a_n31_n37# a_n7_n3# Vdd CMOSP w=40u l=2u
++  ad=720p pd=208u as=400p ps=100u
+M1006 Vdd B a_29_n47# Vdd CMOSP w=20u l=2u
++  ad=0p pd=0u as=120p ps=52u
+M1007 a_19_n3# A Vdd Vdd CMOSP w=40u l=2u
++  ad=400p pd=100u as=0p ps=0u
+M1008 a_n31_n37# A Gnd Gnd CMOSN w=8u l=2u
++  ad=48p pd=28u as=0p ps=0u
+M1009 a_n31_n37# A Vdd Vdd CMOSP w=20u l=2u
++  ad=120p pd=52u as=0p ps=0u
+M1010 fxor a_29_n47# a_19_n3# Vdd CMOSP w=40u l=2u
++  ad=640p pd=192u as=0p ps=0u
+M1011 a_n7_n3# B fxor Vdd CMOSP w=40u l=2u
++  ad=0p pd=0u as=0p ps=0u
+C0 Vdd a_n31_n37# 18.33fF
+C1 a_29_n47# Gnd 10.68fF
+C2 Gnd A 2.86fF
+C3 Vdd B 5.24fF
+C4 a_29_n47# Vdd 3.69fF
+C5 Vdd A 25.34fF
+C6 B Gnd 23.01fF
+C7 a_1_n41# 0 2.16fF
+C8 fxor 0 9.73fF
+C9 a_29_n47# 0 10.40fF
+C10 a_n31_n37# 0 4.23fF
+.ends XOR_HIGH

@@ -1,0 +1,46 @@
+* SPICE3 file created from dff.ext - technology: scmos
+
+.include 0.25_models.txt
+
+.subckt DFF_LOW Q Qbar D CLK Vdd 
+M1000 Q Qbar Vdd Vdd CMOSP w=36u l=2u
++  ad=216p pd=84u as=594p ps=258u
+M1001 DG a_5_n23# Vdd Vdd CMOSP w=9u l=2u
++  ad=162p pd=78u as=0p ps=0u
+M1002 a_5_n23# DG Gnd w_n25_n31# CMOSN w=12u l=2u
++  ad=108p pd=60u as=354p ps=276u
+M1003 a_5_n23# DG Vdd Vdd CMOSP w=36u l=2u
++  ad=324p pd=132u as=0p ps=0u
+M1004 Qbar Q Vdd Vdd CMOSP w=9u l=2u
++  ad=162p pd=78u as=0p ps=0u
+M1005 DG CLK D Vdd CMOSP w=18u l=2u
++  ad=0p pd=0u as=108p ps=48u
+M1006 DG a_n19_n31# D w_n25_n31# CMOSN w=6u l=2u
++  ad=62p pd=46u as=40p ps=26u
+M1007 DG a_5_n23# Gnd w_n25_n31# CMOSN w=3u l=2u
++  ad=0p pd=0u as=0p ps=0u
+M1008 Qbar a_n19_n31# a_5_n23# w_44_n23# CMOSP w=18u l=2u
++  ad=0p pd=0u as=0p ps=0u
+M1009 a_n19_n31# CLK Gnd w_45_6# CMOSN w=3u l=2u
++  ad=22p pd=20u as=0p ps=0u
+M1010 Qbar CLK a_5_n23# w_45_6# CMOSN w=6u l=2u
++  ad=58p pd=44u as=0p ps=0u
+M1011 Qbar Q Gnd w_n25_n31# CMOSN w=3u l=2u
++  ad=0p pd=0u as=0p ps=0u
+M1012 Q Qbar Gnd w_n25_n31# CMOSN w=12u l=2u
++  ad=72p pd=36u as=0p ps=0u
+M1013 a_n19_n31# CLK Vdd Vdd CMOSP w=9u l=2u
++  ad=54p pd=30u as=0p ps=0u
+C0 Vdd a_5_n23# 4.97fF
+C1 w_n25_n31# Gnd 38.77fF
+C2 w_n25_n31# a_5_n23# 2.52fF
+C3 w_45_6# CLK 2.54fF
+C4 w_n25_n31# DG 7.59fF
+C5 w_n25_n31# a_n19_n31# 20.87fF
+C6 w_n25_n31# Qbar 7.97fF
+C7 Vdd CLK 30.78fF
+C8 Q 0 7.49fF
+C9 Gnd 0 4.48fF
+C10 a_n19_n31# 0 5.67fF
+C11 a_5_n23# 0 12.99fF
+.ends DFF_LOW

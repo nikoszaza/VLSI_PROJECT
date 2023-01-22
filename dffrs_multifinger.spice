@@ -1,0 +1,169 @@
+* SPICE3 file created from dffrs_multifinger.ext - technology: scmos
+
+
+.include 0.25_models.txt
+
+.subckt DFFRS_MULTI Q Qm D CLK S R Vdd
+M1000 a_n1_n1# R a_127_13# Vdd CMOSP w=12u l=2u
++  ad=288p pd=144u as=288p ps=144u
+M1001 a_n1_n1# a_43_n6# Gnd Gnd CMOSN w=3u l=2u
++  ad=136p pd=120u as=664p ps=444u
+M1002 Qm S Gnd Gnd CMOSN w=3u l=2u
++  ad=136p pd=120u as=0p ps=0u
+M1003 a_43_13# S a_43_n6# Vdd CMOSP w=54u l=2u
++  ad=1296p pd=480u as=792p ps=312u
+M1004 Gnd CLK a_n45_0# Gnd CMOSN w=3u l=2u
++  ad=0p pd=0u as=22p ps=20u
+M1005 a_43_n6# a_n1_n1# Gnd Gnd CMOSN w=9u l=2u
++  ad=276p pd=164u as=0p ps=0u
+M1006 a_43_n6# S Gnd Gnd CMOSN w=10u l=2u
++  ad=0p pd=0u as=0p ps=0u
+M1007 Gnd R Q Gnd CMOSN w=9u l=2u
++  ad=0p pd=0u as=216p ps=120u
+M1008 a_43_13# a_n1_n1# Vdd Vdd CMOSP w=54u l=2u
++  ad=0p pd=0u as=1656p ps=672u
+M1009 a_n1_n1# R Gnd Gnd CMOSN w=3u l=2u
++  ad=0p pd=0u as=0p ps=0u
+M1010 Q Qm Gnd Gnd CMOSN w=9u l=2u
++  ad=0p pd=0u as=0p ps=0u
+M1011 a_259_13# R Q Vdd CMOSP w=54u l=2u
++  ad=1296p pd=480u as=648p ps=240u
+M1012 a_345_13# S Qm Vdd CMOSP w=12u l=2u
++  ad=288p pd=144u as=288p ps=144u
+M1013 Gnd Q Qm Gnd CMOSN w=3u l=2u
++  ad=0p pd=0u as=0p ps=0u
+M1014 a_259_13# Qm Vdd Vdd CMOSP w=54u l=2u
++  ad=0p pd=0u as=0p ps=0u
+M1015 a_n1_n1# R a_127_13# Vdd CMOSP w=12u l=2u
++  ad=0p pd=0u as=0p ps=0u
+M1016 a_345_13# Q Vdd Vdd CMOSP w=12u l=2u
++  ad=0p pd=0u as=0p ps=0u
+M1017 a_43_n6# a_n1_n1# Gnd Gnd CMOSN w=9u l=2u
++  ad=0p pd=0u as=0p ps=0u
+M1018 Gnd a_43_n6# a_n1_n1# Gnd CMOSN w=3u l=2u
++  ad=0p pd=0u as=0p ps=0u
+M1019 a_n1_n1# CLK D Vdd CMOSP w=12u l=2u
++  ad=0p pd=0u as=144p ps=72u
+M1020 Vdd a_43_n6# a_127_13# Vdd CMOSP w=12u l=2u
++  ad=0p pd=0u as=0p ps=0u
+M1021 a_43_n6# S Gnd Gnd CMOSN w=10u l=2u
++  ad=0p pd=0u as=0p ps=0u
+M1022 a_43_13# a_n1_n1# Vdd Vdd CMOSP w=54u l=2u
++  ad=0p pd=0u as=0p ps=0u
+M1023 Qm CLKN a_43_n6# Vdd CMOSP w=12u l=2u
++  ad=0p pd=0u as=0p ps=0u
+M1024 D CLK a_n1_n1# Vdd CMOSP w=12u l=2u
++  ad=0p pd=0u as=0p ps=0u
+M1025 a_n45_0# CLK Gnd Gnd CMOSN w=3u l=2u
++  ad=0p pd=0u as=0p ps=0u
+M1026 Vdd CLK a_n45_0# Vdd CMOSP w=6u l=2u
++  ad=0p pd=0u as=36p ps=24u
+M1027 CLKN CLK Gnd Gnd CMOSN w=3u l=2u
++  ad=22p pd=20u as=0p ps=0u
+M1028 a_345_13# Q Vdd Vdd CMOSP w=12u l=2u
++  ad=0p pd=0u as=0p ps=0u
+M1029 a_n1_n1# CLKN D Gnd CMOSN w=4u l=2u
++  ad=0p pd=0u as=48p ps=40u
+M1030 a_n1_n1# CLK D Vdd CMOSP w=12u l=2u
++  ad=0p pd=0u as=0p ps=0u
+M1031 Q R Gnd Gnd CMOSN w=9u l=2u
++  ad=0p pd=0u as=0p ps=0u
+M1032 a_43_n6# S a_43_13# Vdd CMOSP w=54u l=2u
++  ad=0p pd=0u as=0p ps=0u
+M1033 Qm CLKN a_43_n6# Vdd CMOSP w=12u l=2u
++  ad=0p pd=0u as=0p ps=0u
+M1034 Q R a_259_13# Vdd CMOSP w=54u l=2u
++  ad=0p pd=0u as=0p ps=0u
+M1035 a_n1_n1# a_43_n6# Gnd Gnd CMOSN w=3u l=2u
++  ad=0p pd=0u as=0p ps=0u
+M1036 Gnd Qm Q Gnd CMOSN w=9u l=2u
++  ad=0p pd=0u as=0p ps=0u
+M1037 Q R Gnd Gnd CMOSN w=9u l=2u
++  ad=0p pd=0u as=0p ps=0u
+M1038 Q R a_259_13# Vdd CMOSP w=54u l=2u
++  ad=0p pd=0u as=0p ps=0u
+M1039 Qm S Gnd Gnd CMOSN w=3u l=2u
++  ad=0p pd=0u as=0p ps=0u
+M1040 Vdd Qm a_259_13# Vdd CMOSP w=54u l=2u
++  ad=0p pd=0u as=0p ps=0u
+M1041 a_127_13# R a_n1_n1# Vdd CMOSP w=12u l=2u
++  ad=0p pd=0u as=0p ps=0u
+M1042 D CLKN a_n1_n1# Gnd CMOSN w=4u l=2u
++  ad=0p pd=0u as=0p ps=0u
+M1043 Qm CLK a_43_n6# Gnd CMOSN w=4u l=2u
++  ad=0p pd=0u as=0p ps=0u
+M1044 a_n1_n1# R Gnd Gnd CMOSN w=3u l=2u
++  ad=0p pd=0u as=0p ps=0u
+M1045 Qm CLK a_43_n6# Gnd CMOSN w=4u l=2u
++  ad=0p pd=0u as=0p ps=0u
+M1046 a_43_n6# S a_43_13# Vdd CMOSP w=54u l=2u
++  ad=0p pd=0u as=0p ps=0u
+M1047 a_127_13# a_43_n6# Vdd Vdd CMOSP w=12u l=2u
++  ad=0p pd=0u as=0p ps=0u
+M1048 Gnd a_n1_n1# a_43_n6# Gnd CMOSN w=9u l=2u
++  ad=0p pd=0u as=0p ps=0u
+M1049 Gnd S a_43_n6# Gnd CMOSN w=10u l=2u
++  ad=0p pd=0u as=0p ps=0u
+M1050 a_n45_0# CLK Vdd Vdd CMOSP w=6u l=2u
++  ad=0p pd=0u as=0p ps=0u
+M1051 Vdd a_n1_n1# a_43_13# Vdd CMOSP w=54u l=2u
++  ad=0p pd=0u as=0p ps=0u
+M1052 Qm S a_345_13# Vdd CMOSP w=12u l=2u
++  ad=0p pd=0u as=0p ps=0u
+M1053 a_n1_n1# CLKN D Gnd CMOSN w=4u l=2u
++  ad=0p pd=0u as=0p ps=0u
+M1054 Qm S a_345_13# Vdd CMOSP w=12u l=2u
++  ad=0p pd=0u as=0p ps=0u
+M1055 Gnd S Qm Gnd CMOSN w=3u l=2u
++  ad=0p pd=0u as=0p ps=0u
+M1056 Vdd Q a_345_13# Vdd CMOSP w=12u l=2u
++  ad=0p pd=0u as=0p ps=0u
+M1057 a_127_13# a_43_n6# Vdd Vdd CMOSP w=12u l=2u
++  ad=0p pd=0u as=0p ps=0u
+M1058 a_43_n6# CLKN Qm Vdd CMOSP w=12u l=2u
++  ad=0p pd=0u as=0p ps=0u
+M1059 Gnd R a_n1_n1# Gnd CMOSN w=3u l=2u
++  ad=0p pd=0u as=0p ps=0u
+M1060 a_43_n6# CLK Qm Gnd CMOSN w=4u l=2u
++  ad=0p pd=0u as=0p ps=0u
+M1061 Qm Q Gnd Gnd CMOSN w=3u l=2u
++  ad=0p pd=0u as=0p ps=0u
+M1062 Q Qm Gnd Gnd CMOSN w=9u l=2u
++  ad=0p pd=0u as=0p ps=0u
+M1063 Qm Q Gnd Gnd CMOSN w=3u l=2u
++  ad=0p pd=0u as=0p ps=0u
+M1064 CLKN CLK Vdd Vdd CMOSP w=6u l=2u
++  ad=36p pd=24u as=0p ps=0u
+M1065 a_259_13# Qm Vdd Vdd CMOSP w=54u l=2u
++  ad=0p pd=0u as=0p ps=0u
+C0 S Vdd 60.47fF
+C1 a_259_13# Q 2.82fF
+C2 S R 8.16fF
+C3 Qm Gnd 56.61fF
+C4 CLK Vdd 22.70fF
+C5 a_43_n6# Gnd 9.31fF
+C6 a_127_13# Vdd 6.02fF
+C7 a_n1_n1# Gnd 50.05fF
+C8 Qm Vdd 11.51fF
+C9 a_43_n6# Vdd 46.84fF
+C10 Q Gnd 8.93fF
+C11 a_345_13# Vdd 6.25fF
+C12 a_n1_n1# Vdd 8.63fF
+C13 R Gnd 19.13fF
+C14 CLKN a_43_n6# 3.39fF
+C15 a_43_13# Vdd 13.44fF
+C16 CLKN Gnd 17.63fF
+C17 Q Vdd 6.75fF
+C18 S Gnd 18.41fF
+C19 R Vdd 60.05fF
+C20 CLK Gnd 80.70fF
+C21 CLKN a_43_13# 5.64fF
+C22 CLKN Vdd 66.62fF
+C23 a_259_13# Vdd 13.63fF
+C24 Q 0 23.29fF
+C25 a_43_n6# 0 27.43fF
+C26 Qm 0 29.83fF
+C27 a_n1_n1# 0 25.13fF
+C28 R 0 12.85fF
+C29 S 0 12.85fF
+.ends DFFRS_MULTI

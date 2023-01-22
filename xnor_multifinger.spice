@@ -1,0 +1,92 @@
+* SPICE3 file created from /home/nikoszaza/Desktop/VLSI/project/part1/xnor_multifinger.ext - technology: scmos
+
+
+.include 0.25_models.txt
+
+.subckt XNOR_MULTI xnor A B vdd
+M1000 a_91_n27# BN xnor Gnd CMOSN w=6u l=2u
++  ad=144p pd=96u as=156p ps=100u
+M1001 xnor B a_20_n7# Vdd CMOSP w=12u l=2u
++  ad=288p pd=144u as=288p ps=144u
+M1002 xnor AN a_60_n7# Vdd CMOSP w=12u l=2u
++  ad=0p pd=0u as=288p ps=144u
+M1003 a_20_n27# B xnor Gnd CMOSN w=6u l=2u
++  ad=144p pd=96u as=0p ps=0u
+M1004 a_20_n27# AN Gnd Gnd CMOSN w=6u l=2u
++  ad=0p pd=0u as=220p ps=172u
+M1005 BN B Vdd Vdd CMOSP w=6u l=2u
++  ad=72p pd=48u as=432p ps=240u
+M1006 AN A Gnd Gnd CMOSN w=3u l=2u
++  ad=44p pd=40u as=0p ps=0u
+M1007 Gnd A a_91_n27# Gnd CMOSN w=6u l=2u
++  ad=0p pd=0u as=0p ps=0u
+M1008 AN A Vdd Vdd CMOSP w=6u l=2u
++  ad=72p pd=48u as=0p ps=0u
+M1009 Vdd BN a_60_n7# Vdd CMOSP w=12u l=2u
++  ad=0p pd=0u as=0p ps=0u
+M1010 Vdd A a_20_n7# Vdd CMOSP w=12u l=2u
++  ad=0p pd=0u as=0p ps=0u
+M1011 xnor B a_20_n27# Gnd CMOSN w=6u l=2u
++  ad=0p pd=0u as=0p ps=0u
+M1012 Gnd AN a_20_n27# Gnd CMOSN w=6u l=2u
++  ad=0p pd=0u as=0p ps=0u
+M1013 BN B Gnd Gnd CMOSN w=3u l=2u
++  ad=44p pd=40u as=0p ps=0u
+M1014 a_60_n7# AN xnor Vdd CMOSP w=12u l=2u
++  ad=0p pd=0u as=0p ps=0u
+M1015 Gnd B BN Gnd CMOSN w=3u l=2u
++  ad=0p pd=0u as=0p ps=0u
+M1016 a_20_n7# B xnor Vdd CMOSP w=12u l=2u
++  ad=0p pd=0u as=0p ps=0u
+M1017 Vdd BN a_60_n7# Vdd CMOSP w=12u l=2u
++  ad=0p pd=0u as=0p ps=0u
+M1018 a_20_n27# B xnor Gnd CMOSN w=6u l=2u
++  ad=0p pd=0u as=0p ps=0u
+M1019 Gnd A AN Gnd CMOSN w=3u l=2u
++  ad=0p pd=0u as=0p ps=0u
+M1020 a_91_n27# BN xnor Gnd CMOSN w=6u l=2u
++  ad=0p pd=0u as=0p ps=0u
+M1021 Vdd A a_20_n7# Vdd CMOSP w=12u l=2u
++  ad=0p pd=0u as=0p ps=0u
+M1022 Vdd B BN Vdd CMOSP w=6u l=2u
++  ad=0p pd=0u as=0p ps=0u
+M1023 Gnd B BN Gnd CMOSN w=3u l=2u
++  ad=0p pd=0u as=0p ps=0u
+M1024 a_60_n7# AN xnor Vdd CMOSP w=12u l=2u
++  ad=0p pd=0u as=0p ps=0u
+M1025 a_20_n7# B xnor Vdd CMOSP w=12u l=2u
++  ad=0p pd=0u as=0p ps=0u
+M1026 AN A Vdd Vdd CMOSP w=6u l=2u
++  ad=0p pd=0u as=0p ps=0u
+M1027 Gnd A a_91_n27# Gnd CMOSN w=6u l=2u
++  ad=0p pd=0u as=0p ps=0u
+M1028 Vdd B BN Vdd CMOSP w=6u l=2u
++  ad=0p pd=0u as=0p ps=0u
+M1029 AN A Gnd Gnd CMOSN w=3u l=2u
++  ad=0p pd=0u as=0p ps=0u
+M1030 xnor BN a_91_n27# Gnd CMOSN w=6u l=2u
++  ad=0p pd=0u as=0p ps=0u
+M1031 Vdd A AN Vdd CMOSP w=6u l=2u
++  ad=0p pd=0u as=0p ps=0u
+M1032 a_60_n7# BN Vdd Vdd CMOSP w=12u l=2u
++  ad=0p pd=0u as=0p ps=0u
+M1033 Gnd AN a_20_n27# Gnd CMOSN w=6u l=2u
++  ad=0p pd=0u as=0p ps=0u
+M1034 a_20_n7# A Vdd Vdd CMOSP w=12u l=2u
++  ad=0p pd=0u as=0p ps=0u
+M1035 a_91_n27# A Gnd Gnd CMOSN w=6u l=2u
++  ad=0p pd=0u as=0p ps=0u
+C0 Vdd AN 30.39fF
+C1 Gnd B 60.08fF
+C2 Gnd a_20_n27# 12.01fF
+C3 Gnd A 14.93fF
+C4 BN Gnd 7.98fF
+C5 Gnd AN 7.47fF
+C6 Vdd a_20_n7# 26.14fF
+C7 Vdd a_60_n7# 12.98fF
+C8 Vdd B 13.98fF
+C9 Gnd a_91_n27# 13.72fF
+C10 Vdd A 49.13fF
+C11 Vdd BN 6.75fF
+C12 xnor 0 9.31fF
+.ends XNOR_MULTI

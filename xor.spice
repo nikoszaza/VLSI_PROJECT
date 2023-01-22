@@ -1,0 +1,46 @@
+* SPICE3 file created from /home/nikoszaza/Desktop/VLSI/project/xor.ext - technology: scmos
+
+.include 0.25_models.txt
+
+.subckt XOR_LOW fxor A B vdd
+M1000 a_n31_n33# A gnd gnd CMOSN w=4u l=2u
++  ad=24p pd=20u as=96p ps=68u
+M1001 fxor B a_n17_n33# gnd CMOSN w=8u l=2u
++  ad=48p pd=28u as=128p ps=64u
+M1002 gnd B a_29_n42# gnd CMOSN w=4u l=2u
++  ad=0p pd=0u as=24p ps=20u
+M1003 a_1_n33# a_29_n42# gnd gnd CMOSN w=8u l=2u
++  ad=152p pd=70u as=0p ps=0u
+M1004 gnd A a_n17_n33# gnd CMOSN w=8u l=2u
++  ad=0p pd=0u as=0p ps=0u
+M1005 vdd a_n31_n33# a_n7_n3# vdd CMOSP w=20u l=2u
++  ad=360p pd=128u as=200p ps=60u
+M1006 vdd B a_29_n42# vdd CMOSP w=10u l=2u
++  ad=0p pd=0u as=60p ps=32u
+M1007 a_19_n3# A vdd vdd CMOSP w=20u l=2u
++  ad=200p pd=60u as=0p ps=0u
+M1008 a_1_n33# a_n31_n33# fxor gnd CMOSN w=8u l=2u
++  ad=0p pd=0u as=0p ps=0u
+M1009 a_n31_n33# A vdd vdd CMOSP w=10u l=2u
++  ad=60p pd=32u as=0p ps=0u
+M1010 fxor a_29_n42# a_19_n3# vdd CMOSP w=20u l=2u
++  ad=320p pd=112u as=0p ps=0u
+M1011 a_n7_n3# B fxor vdd CMOSP w=20u l=2u
++  ad=0p pd=0u as=0p ps=0u
+C0 a_n31_n33# vdd 16.68fF
+C1 gnd A 8.58fF
+C2 gnd a_29_n42# 17.01fF
+C3 B vdd 4.53fF
+C4 a_n17_n33# gnd 8.88fF
+C5 a_1_n33# gnd 6.02fF
+C6 A vdd 21.41fF
+C7 vdd a_29_n42# 2.84fF
+C8 a_n31_n33# gnd 6.92fF
+C9 fxor gnd 3.81fF
+C10 B gnd 28.25fF
+C11 fxor 0 4.79fF
+C12 a_29_n42# 0 6.43fF
+C13 a_n31_n33# 0 6.80fF
+.ends XOR_LOW
+
+

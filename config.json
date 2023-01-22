@@ -1,0 +1,40 @@
+[
+	{	
+		"name": "XOR_LOW",
+		"type": "combinational",
+		"path": "/home/znikolaos-g/VLSI/Project/Part2/xor.spice",
+		"signature": "fxor A B vdd",
+		"pins": [
+			{
+				"name": "A",
+				"type": "input"
+			},
+			{
+				"name": "B",
+				"type": "input"
+			},
+			{
+				"name": "vdd",
+				"type": "power"
+			},
+			{
+				"name": "fxor",
+				"type": "output",
+				"timing": [
+					{
+						"related_pin": "A",
+						"timing_sense": "binate",
+						"binate_type": "positive 0",
+						"other_pin": "B"
+					},
+					{
+						"related_pin": "B",
+						"timing_sense": "binate",
+						"binate_type": "positive 0",
+						"other_pin": "A"
+					}
+				] 
+			}
+		]
+	}
+]
