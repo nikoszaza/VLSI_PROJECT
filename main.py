@@ -87,7 +87,6 @@ def copy_file_to_file(source_file, dest_file):
         dest_file.write(line)
 
 
-
 def fill_measure_files(sub_name, source_slews, loads, is_related_ris):
     f_skeleton = open('skeleton_files/' + sub_name + '_skeleton.txt', "r")
     skeleton_data = f_skeleton.read()
@@ -109,83 +108,86 @@ def fill_measure_files(sub_name, source_slews, loads, is_related_ris):
             f_measure.close()
 
 
-def make_measure_files(cell, source_slews, loads):
-    for pin in cell.pins:
-        if pin['type'] == 'output':
-            for timing in pin['timing']:
-                print(timing)
-                if timing['timing_sense'] == 'binate':
-                    if timing['binate_type'] == 'positive 0':
-                        fname_in_ris_out_ris = cell.name + '/' + timing['related_pin'] + \
-                                               '_rising_' + timing['other_pin'] + '_0'
-                        fname_in_ris_out_fal = cell.name + '/' + timing['related_pin'] + \
-                                               '_rising_' + timing['other_pin'] + '_1'
-                        fname_in_fal_out_fal = cell.name + '/' + timing['related_pin'] + \
-                                               '_falling_' + timing['other_pin'] + '_0'
-                        fname_in_fal_out_ris = cell.name + '/' + timing['related_pin'] + \
-                                               '_falling_' + timing['other_pin'] + '_1'
-                    elif timing['binate_type'] == 'negative 0':
-                        fname_in_ris_out_ris = cell.name + '/' + timing['related_pin'] + \
-                                               '_rising_' + timing['other_pin'] + '_1'
-                        fname_in_ris_out_fal = cell.name + '/' + timing['related_pin'] + \
-                                               '_rising_' + timing['other_pin'] + '_0'
-                        fname_in_fal_out_fal = cell.name + '/' + timing['related_pin'] + \
-                                               '_falling_' + timing['other_pin'] + '_1'
-                        fname_in_fal_out_ris = cell.name + '/' + timing['related_pin'] + \
-                                               '_falling_' + timing['other_pin'] + '_0'
-                    fill_measure_files(fname_in_ris_out_ris, source_slews, loads, True)
-                    fill_measure_files(fname_in_ris_out_fal, source_slews, loads, True)
-                    fill_measure_files(fname_in_fal_out_fal, source_slews, loads, False)
-                    fill_measure_files(fname_in_fal_out_ris, source_slews, loads, False)
+def make_measure_files(cell):
+    if cell.type == 'combinational':
+        for pin in cell.pins:
+            if pin['type'] == 'output':
+                for timing in pin['timing']:
+                    print(timing)
+                    if timing['timing_sense'] == 'binate':
+                        if timing['binate_type'] == 'positive 0':
+                            fname_in_ris_out_ris = cell.name + '/timing_' + timing['related_pin'] + '_rising_' +\
+                                                   timing['other_pin'] + '_0_' + pin['name'] + '_rising'
+                            fname_in_ris_out_fal = cell.name + '/timing_' + timing['related_pin'] + \
+                                                   '_rising_' + timing['other_pin'] + '_1_' + pin['name'] + '_falling'
+                            fname_in_fal_out_fal = cell.name + '/timing_' + timing['related_pin'] + \
+                                                   '_falling_' + timing['other_pin'] + '_0_' + pin['name'] + '_falling'
+                            fname_in_fal_out_ris = cell.name + '/timing_' + timing['related_pin'] + \
+                                                   '_falling_' + timing['other_pin'] + '_1_' + pin['name'] + '_rising'
+                        elif timing['binate_type'] == 'negative 0':
+                            fname_in_ris_out_ris = cell.name + '/timing_'  + timing['related_pin'] + \
+                                                   '_rising_' + timing['other_pin'] + '_1_' + pin['name'] + '_rising'
+                            fname_in_ris_out_fal = cell.name + '/timing_'  + timing['related_pin'] + \
+                                                   '_rising_' + timing['other_pin'] + '_0_' + pin['name'] + '_falling'
+                            fname_in_fal_out_fal = cell.name + '/timing_'  + timing['related_pin'] + \
+                                                   '_falling_' + timing['other_pin'] + '_1_' + pin['name'] + '_falling'
+                            fname_in_fal_out_ris = cell.name + '/timing_'  + timing['related_pin'] + \
+                                                   '_falling_' + timing['other_pin'] + '_0_' + pin['name'] + '_rising'
+
+                        loads = [float(load) for load in timing['loads']]
+                        source_slews = [float(source_slew) for source_slew in timing['source_slews']]
+                        fill_measure_files(fname_in_ris_out_ris, source_slews, loads, True)
+                        fill_measure_files(fname_in_ris_out_fal, source_slews, loads, True)
+                        fill_measure_files(fname_in_fal_out_fal, source_slews, loads, False)
+                        fill_measure_files(fname_in_fal_out_ris, source_slews, loads, False)
 
 
 def make_skeleton_files(cell):
-   for pin in cell.pins:
-       if pin['type'] == 'output':
-           for timing in pin['timing']:
-               if timing['timing_sense'] == 'binate':
-                   if timing['binate_type'] == 'positive 0':
-                       fname_in_ris_out_ris = 'skeleton_files/' + cell.name + '/' + timing['related_pin'] +\
-                                              '_rising_' + timing['other_pin'] + '_0_skeleton.txt'
-                       fname_in_ris_out_fal = 'skeleton_files/' + cell.name + '/' + timing['related_pin'] + \
-                                              '_rising_' + timing['other_pin'] + '_1_skeleton.txt'
-                       fname_in_fal_out_fal = 'skeleton_files/' + cell.name + '/' + timing['related_pin'] + \
-                                              '_falling_' + timing['other_pin'] + '_0_skeleton.txt'
-                       fname_in_fal_out_ris = 'skeleton_files/' + cell.name + '/' + timing['related_pin'] + \
-                                              '_falling_' + timing['other_pin'] + '_1_skeleton.txt'
+    if cell.type == 'combinational':
+       for pin in cell.pins:
+           if pin['type'] == 'output':
+               for timing in pin['timing']:
+                   if timing['timing_sense'] == 'binate':
+                       if timing['binate_type'] == 'positive 0':
+                           fname_in_ris_out_ris = 'skeleton_files/' + cell.name + '/timing_' + timing['related_pin'] +\
+                                                  '_rising_' + timing['other_pin'] + '_0_' + pin['name'] + '_rising_skeleton.txt'
+                           fname_in_ris_out_fal = 'skeleton_files/' + cell.name + '/timing_' + timing['related_pin'] + \
+                                                  '_rising_' + timing['other_pin'] + '_1_' + pin['name'] + '_falling_skeleton.txt'
+                           fname_in_fal_out_fal = 'skeleton_files/' + cell.name + '/timing_' + timing['related_pin'] + \
+                                                  '_falling_' + timing['other_pin'] + '_0_' + pin['name'] + '_falling_skeleton.txt'
+                           fname_in_fal_out_ris = 'skeleton_files/' + cell.name + '/timing_' + timing['related_pin'] + \
+                                                  '_falling_' + timing['other_pin'] + '_1_' + pin['name'] + '_rising_skeleton.txt'
 
-                       fill_skeleton_files(fname_in_ris_out_ris, timing['related_pin'],
-                                          timing['other_pin'], True, True, 0)
-                       fill_skeleton_files(fname_in_ris_out_fal, timing['related_pin'],
-                                          timing['other_pin'], True, False, 2.5)
-                       fill_skeleton_files(fname_in_fal_out_fal, timing['related_pin'],
-                                          timing['other_pin'], False, False, 0)
-                       fill_skeleton_files(fname_in_fal_out_ris, timing['related_pin'],
-                                          timing['other_pin'], False, True, 2.5)
-                   elif timing['binate_type'] == 'negative 0':
-                       fname_in_ris_out_ris = 'skeleton_files/' + cell.name + '/' + timing['related_pin'] + \
-                                              '_rising_' + timing['other_pin'] + '_1_skeleton.txt'
-                       fname_in_ris_out_fal = 'skeleton_files/' + cell.name + '/' + timing['related_pin'] + \
-                                              '_rising_' + timing['other_pin'] + '_0_skeleton.txt'
-                       fname_in_fal_out_fal = 'skeleton_files/' + cell.name + '/' + timing['related_pin'] + \
-                                              '_falling_' + timing['other_pin'] + '_1_skeleton.txt'
-                       fname_in_fal_out_ris = 'skeleton_files/' + cell.name + '/' + timing['related_pin'] + \
-                                              '_falling_' + timing['other_pin'] + '_0_skeleton.txt'
+                           fill_skeleton_files(fname_in_ris_out_ris, timing['related_pin'],
+                                              timing['other_pin'], True, True, 0)
+                           fill_skeleton_files(fname_in_ris_out_fal, timing['related_pin'],
+                                              timing['other_pin'], True, False, 2.5)
+                           fill_skeleton_files(fname_in_fal_out_fal, timing['related_pin'],
+                                              timing['other_pin'], False, False, 0)
+                           fill_skeleton_files(fname_in_fal_out_ris, timing['related_pin'],
+                                              timing['other_pin'], False, True, 2.5)
+                       elif timing['binate_type'] == 'negative 0':
+                           fname_in_ris_out_ris = 'skeleton_files/' + cell.name + '/timing_' + timing['related_pin'] + \
+                                                  '_rising_' + timing['other_pin'] + '_1_' + pin['name'] + '_rising_skeleton.txt'
+                           fname_in_ris_out_fal = 'skeleton_files/' + cell.name + '/timing_' + timing['related_pin'] + \
+                                                  '_rising_' + timing['other_pin'] + '_0_' + pin['name'] + '_falling_skeleton.txt'
+                           fname_in_fal_out_fal = 'skeleton_files/' + cell.name + '/timing_' + timing['related_pin'] + \
+                                                  '_falling_' + timing['other_pin'] + '_1_' + pin['name'] + '_falling_skeleton.txt'
+                           fname_in_fal_out_ris = 'skeleton_files/' + cell.name + '/timing_' + timing['related_pin'] + \
+                                                  '_falling_' + timing['other_pin'] + '_0_' + pin['name'] + '_rising_skeleton.txt'
 
-                       fill_skeleton_files(fname_in_ris_out_ris, timing['related_pin'],
-                                          timing['other_pin'], True, True, 2.5)
-                       fill_skeleton_files(fname_in_ris_out_fal, timing['related_pin'],
-                                          timing['other_pin'], True, False, 0)
-                       fill_skeleton_files(fname_in_fal_out_fal, timing['related_pin'],
-                                          timing['other_pin'], False, False, 2.5)
-                       fill_skeleton_files(fname_in_fal_out_ris, timing['related_pin'],
-                                          timing['other_pin'], False, True, 0)
+                           fill_skeleton_files(fname_in_ris_out_ris, timing['related_pin'],
+                                              timing['other_pin'], True, True, 2.5)
+                           fill_skeleton_files(fname_in_ris_out_fal, timing['related_pin'],
+                                              timing['other_pin'], True, False, 0)
+                           fill_skeleton_files(fname_in_fal_out_fal, timing['related_pin'],
+                                              timing['other_pin'], False, False, 2.5)
+                           fill_skeleton_files(fname_in_fal_out_ris, timing['related_pin'],
+                                              timing['other_pin'], False, True, 0)
 
 
 config_path = "/home/znikolaos-g/VLSI/Project/Part2/config.json"
 cells = parse_config(config_path)
-source_slews = [0.5, 1, 1.5]
-loads = [1, 2, 4]
 
 try:
     os.mkdir('skeleton_files')
@@ -216,11 +218,11 @@ for cell in cells:
     except FileExistsError:
         pass
     make_skeleton_files(cell)
-    make_measure_files(cell, source_slews, loads)
+    make_measure_files(cell)
 
 spice_dirs = os.listdir("measure_files/")
 
 for spice_dir in spice_dirs:
     spice_files = os.listdir("measure_files/"+spice_dir+'/')
     for spice_file in spice_files:
-        os.system("ngspice " + "measure_files/"+spice_dir+"/"+spice_file)
+        os.system("ngspice "+"measure_files/"+spice_dir+"/"+spice_file)
