@@ -2,7 +2,19 @@
 import os
 from pathlib import Path
 import json
+import shutil
 
+def delete(path):
+    """path could either be relative or absolute. """
+    # check if file or directory exists
+    if os.path.isfile(path) or os.path.islink(path):
+        # remove file
+        os.remove(path)
+    elif os.path.isdir(path):
+        # remove directory and all its content
+        shutil.rmtree(path)
+    else:
+        raise ValueError("Path {} is not a file or dir.".format(path))
 
 
 def make_test_skeleton(gate, drive, source_file):
@@ -39,7 +51,7 @@ def parse_config(config_path):
     return cells
 
 
-def fill_skeleton_files(file_name, related_pin, other_pin, is_related_ris, is_out_ris, other_val):
+def fill_skeleton_files(cell, file_name, related_pin, other_pin, is_related_ris, is_out_ris, other_val):
     f = open(file_name, "w")
     out = "wrong_out"
     f.write(".include " + cell.path + "\n\n")
@@ -142,6 +154,33 @@ def make_measure_files(cell):
                         fill_measure_files(fname_in_fal_out_ris, source_slews, loads, False)
 
 
+def fill_skeleton_setup_hold(cell, file_name, constraint, is_rising):
+    f = open(file_name, "w")
+    f.write(".include " + cell.path + "\n\n")
+    out = 'wrong_output'
+
+    if constraint == "setup":
+        if is_rising:
+            for pin in cell.pins:
+                if pin['type'] == 'input':
+                    f.write("V"+pin['name']+' '+pin['name']+' Gnd 0 PWL(0 0 D_START 0 D_END 2.5)\n')
+                elif pin['type'] == 'preset':
+                    f.write("V"+pin['name']+' '+pin['name']+" Gnd 0\n")
+                elif pin['type'] == 'clear':
+                    f.write("V"+pin['name']+' '+pin['name']+" Gnd 2.5 PWL(0 2.5 2n 2.5 2.1n 0)\n")
+                elif pin['type'] == 'power':
+                    f.write("V"+pin['name']+' '+pin['name']+" Gnd 2.5\n")
+                elif pin['type'] == 'clock':
+                    f.write("V" + pin['name'] + ' ' + pin['name'] + ' Gnd 0 PWL(0 0 20n 0 C_END 2.5)\n')
+                elif pin['type'] == 'output':
+                    out = pin['name']
+            f.write('C1 ' + out + ' Gnd 100f\n')
+            f.write('X1 ' + cell.signature + ' ' + cell.name + '\n')
+            f.write('.tran 50p 100n\n.control\n\tlet slew=0\n\trun\n\tmeas tran slew TRIG v('+
+                    out+') VAL=0.25 RISE=1 TARG v('+out+
+                    ') VAL=2.25 RISE=1\n\techo \"$&slew\" > SETUP_RIS_MEAS.txt\n\tquit\n.endc\n\n.end')
+    f.close()
+
 def make_skeleton_files(cell):
     if cell.type == 'combinational':
        for pin in cell.pins:
@@ -158,13 +197,13 @@ def make_skeleton_files(cell):
                            fname_in_fal_out_ris = 'skeleton_files/' + cell.name + '/timing_' + timing['related_pin'] + \
                                                   '_falling_' + timing['other_pin'] + '_1_' + pin['name'] + '_rising_skeleton.txt'
 
-                           fill_skeleton_files(fname_in_ris_out_ris, timing['related_pin'],
+                           fill_skeleton_files(cell, fname_in_ris_out_ris, timing['related_pin'],
                                               timing['other_pin'], True, True, 0)
-                           fill_skeleton_files(fname_in_ris_out_fal, timing['related_pin'],
+                           fill_skeleton_files(cell, fname_in_ris_out_fal, timing['related_pin'],
                                               timing['other_pin'], True, False, 2.5)
-                           fill_skeleton_files(fname_in_fal_out_fal, timing['related_pin'],
+                           fill_skeleton_files(cell ,fname_in_fal_out_fal, timing['related_pin'],
                                               timing['other_pin'], False, False, 0)
-                           fill_skeleton_files(fname_in_fal_out_ris, timing['related_pin'],
+                           fill_skeleton_files(cell, fname_in_fal_out_ris, timing['related_pin'],
                                               timing['other_pin'], False, True, 2.5)
                        elif timing['binate_type'] == 'negative 0':
                            fname_in_ris_out_ris = 'skeleton_files/' + cell.name + '/timing_' + timing['related_pin'] + \
@@ -176,30 +215,37 @@ def make_skeleton_files(cell):
                            fname_in_fal_out_ris = 'skeleton_files/' + cell.name + '/timing_' + timing['related_pin'] + \
                                                   '_falling_' + timing['other_pin'] + '_0_' + pin['name'] + '_rising_skeleton.txt'
 
-                           fill_skeleton_files(fname_in_ris_out_ris, timing['related_pin'],
+                           fill_skeleton_files(cell, fname_in_ris_out_ris, timing['related_pin'],
                                               timing['other_pin'], True, True, 2.5)
-                           fill_skeleton_files(fname_in_ris_out_fal, timing['related_pin'],
+                           fill_skeleton_files(cell, fname_in_ris_out_fal, timing['related_pin'],
                                               timing['other_pin'], True, False, 0)
-                           fill_skeleton_files(fname_in_fal_out_fal, timing['related_pin'],
+                           fill_skeleton_files(cell, fname_in_fal_out_fal, timing['related_pin'],
                                               timing['other_pin'], False, False, 2.5)
-                           fill_skeleton_files(fname_in_fal_out_ris, timing['related_pin'],
+                           fill_skeleton_files(cell, fname_in_fal_out_ris, timing['related_pin'],
                                               timing['other_pin'], False, True, 0)
-
+    else:
+        for pin in cell.pins:
+            if pin['type'] == 'input':
+                for timing in pin['timing']:
+                    if timing['timing_type'] == "setup_rising":
+                        print(pin['name'])
+                        fname_setup_rising_rise = 'skeleton_files/' + cell.name + '/setup/rise/' + cell.name + '_skeleton.txt'
+                        fname_setup_rising_fall = 'skeleton_files/' + cell.name + '/setup/fall/' + cell.name + '_skeleton.txt'
+                        fill_skeleton_setup_hold(cell, fname_setup_rising_rise, "setup", True)
+                    elif timing['timing_type'] == "hold_rising":
+                        fname_hold_rising_rise = 'skeleton_files/' + cell.name + '/hold/rise/' + cell.name + '_skeleton.txt'
+                        fname_hold_rising_fall = 'skeleton_files/' + cell.name + '/hold/fall/' + cell.name + '_skeleton.txt'
 
 config_path = "/home/znikolaos-g/VLSI/Project/Part2/config.json"
 cells = parse_config(config_path)
 
+delete('skeleton_files')
+delete('measure_files')
+delete('out_measure_files')
+
 try:
     os.mkdir('skeleton_files')
-except FileExistsError:
-    pass
-
-try:
     os.mkdir('measure_files')
-except FileExistsError:
-    pass
-
-try:
     os.mkdir('out_measure_files')
 except FileExistsError:
     pass
@@ -207,16 +253,55 @@ except FileExistsError:
 for cell in cells:
     try:
         os.mkdir('skeleton_files/'+cell.name)
+        os.mkdir('measure_files/' + cell.name)
+        os.mkdir('out_measure_files/' + cell.name)
     except FileExistsError:
         pass
-    try:
-        os.mkdir('measure_files/'+cell.name)
-    except FileExistsError:
-        pass
-    try:
-        os.mkdir('out_measure_files/'+cell.name)
-    except FileExistsError:
-        pass
+
+    if cell.type == 'sequential':
+        try:
+            os.mkdir('skeleton_files/' + cell.name + '/setup')
+            os.mkdir('skeleton_files/' + cell.name + '/setup/rise')
+            os.mkdir('skeleton_files/' + cell.name + '/setup/fall')
+            os.mkdir('skeleton_files/' + cell.name + '/hold')
+            os.mkdir('skeleton_files/' + cell.name + '/hold/rise')
+            os.mkdir('skeleton_files/' + cell.name + '/hold/fall')
+            os.mkdir('skeleton_files/' + cell.name + '/recover')
+            os.mkdir('skeleton_files/' + cell.name + '/recover/rise')
+            os.mkdir('skeleton_files/' + cell.name + '/recover/fall')
+            os.mkdir('skeleton_files/' + cell.name + '/removal')
+            os.mkdir('skeleton_files/' + cell.name + '/removal/rise')
+            os.mkdir('skeleton_files/' + cell.name + '/removal/fall')
+
+            os.mkdir('measure_files/' + cell.name + '/setup')
+            os.mkdir('measure_files/' + cell.name + '/setup/rise')
+            os.mkdir('measure_files/' + cell.name + '/setup/fall')
+            os.mkdir('measure_files/' + cell.name + '/hold')
+            os.mkdir('measure_files/' + cell.name + '/hold/rise')
+            os.mkdir('measure_files/' + cell.name + '/hold/fall')
+            os.mkdir('measure_files/' + cell.name + '/recover')
+            os.mkdir('measure_files/' + cell.name + '/recover/rise')
+            os.mkdir('measure_files/' + cell.name + '/recover/fall')
+            os.mkdir('measure_files/' + cell.name + '/removal')
+            os.mkdir('measure_files/' + cell.name + '/removal/rise')
+            os.mkdir('measure_files/' + cell.name + '/removal/fall')
+
+            os.mkdir('out_measure_files/' + cell.name + '/setup')
+            os.mkdir('out_measure_files/' + cell.name + '/setup/rise')
+            os.mkdir('out_measure_files/' + cell.name + '/setup/fall')
+            os.mkdir('out_measure_files/' + cell.name + '/hold')
+            os.mkdir('out_measure_files/' + cell.name + '/hold/rise')
+            os.mkdir('out_measure_files/' + cell.name + '/hold/fall')
+            os.mkdir('out_measure_files/' + cell.name + '/recover')
+            os.mkdir('out_measure_files/' + cell.name + '/recover/rise')
+            os.mkdir('out_measure_files/' + cell.name + '/recover/fall')
+            os.mkdir('out_measure_files/' + cell.name + '/removal')
+            os.mkdir('out_measure_files/' + cell.name + '/removal/rise')
+            os.mkdir('out_measure_files/' + cell.name + '/removal/fall')
+        except FileExistsError:
+            pass
+
+
     make_skeleton_files(cell)
     make_measure_files(cell)
 
@@ -225,4 +310,6 @@ spice_dirs = os.listdir("measure_files/")
 for spice_dir in spice_dirs:
     spice_files = os.listdir("measure_files/"+spice_dir+'/')
     for spice_file in spice_files:
-        os.system("ngspice "+"measure_files/"+spice_dir+"/"+spice_file)
+        if os.path.isfile("measure_files/"+spice_dir+"/"+spice_file):
+            # for combinational gates
+            os.system("ngspice "+"measure_files/"+spice_dir+"/"+spice_file)
