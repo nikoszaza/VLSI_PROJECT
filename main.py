@@ -73,7 +73,7 @@ def fill_skeleton_files(cell, file_name, related_pin, other_pin, is_related_ris,
     f.write('.tran 50p 100n\n.control\nrun\n')
     if is_out_ris:
         f.write('\tmeas tran slew TRIG v(' + out +
-                ') VAL=0.25 RISE=1 TARG v(' + out + ') VAL=2.25 RISE=1\n')
+                ') VAL=0.75 RISE=1 TARG v(' + out + ') VAL=1.75 RISE=1\n')
         if is_related_ris:
             f.write('\tmeas tran delay TRIG v(' + related_pin + ') VAL=1.25 RISE=1 TARG v(' +
                     out + ') VAL=1.25 RISE=1\n')
@@ -82,7 +82,7 @@ def fill_skeleton_files(cell, file_name, related_pin, other_pin, is_related_ris,
                     out + ') VAL=1.25 RISE=1\n')
     else:
         f.write('\tmeas tran slew TRIG v(' + out +
-                ') VAL=2.25 FALL=1 TARG v(' + out + ') VAL=0.25 FALL=1\n')
+                ') VAL=1.75 FALL=1 TARG v(' + out + ') VAL=0.75 FALL=1\n')
         if is_related_ris:
             f.write('\tmeas tran delay TRIG v(' + related_pin + ') VAL=1.25 RISE=1 TARG v(' +
                     out + ') VAL=1.25 FALL=1\n')
@@ -99,6 +99,25 @@ def copy_file_to_file(source_file, dest_file):
         dest_file.write(line)
 
 
+def fill_measure_files_con(sub_name, related_slews, constrained_slews, con_type):
+    if con_type == 'setup':
+        f_skeleton = open('skeleton_files/' + sub_name + '_skeleton.txt', "r")
+        skeleton_data = f_skeleton.read()
+        f_skeleton.close()
+
+        for related_slew in related_slews:
+            for constrained_slew in constrained_slews:
+                f_measure = open('measure_files/' + sub_name + '_' + str(related_slew) + '_' + str(constrained_slew) + '_.txt', "w")
+                d_start_end = constrained_slew/0.4
+                c_start_end = related_slew/0.4
+
+                measure_data = skeleton_data.replace("D_START_END", str(d_start_end)+'n')
+                measure_data = measure_data.replace("C_START_END", str(c_start_end) + 'n')
+
+                f_measure.write(measure_data)
+                f_measure.close()
+
+
 def fill_measure_files(sub_name, source_slews, loads, is_related_ris):
     f_skeleton = open('skeleton_files/' + sub_name + '_skeleton.txt', "r")
     skeleton_data = f_skeleton.read()
@@ -107,8 +126,8 @@ def fill_measure_files(sub_name, source_slews, loads, is_related_ris):
     for source_slew in source_slews:
         for load in loads:
             f_measure = open('measure_files/' + sub_name + '_' + str(source_slew)
-                             + '_' + str(load) + '.txt', "w")
-            t1 = source_slew/0.8
+                             + '_' + str(load) + '_.txt', "w")
+            t1 = source_slew/0.4
             if is_related_ris:
                 measure_data = skeleton_data.replace("HIGHRAMPT", str(t1)+'n')
             else:
@@ -152,33 +171,125 @@ def make_measure_files(cell):
                         fill_measure_files(fname_in_ris_out_fal, source_slews, loads, True)
                         fill_measure_files(fname_in_fal_out_fal, source_slews, loads, False)
                         fill_measure_files(fname_in_fal_out_ris, source_slews, loads, False)
+    else:
+        for pin in cell.pins:
+            if pin['type'] == 'input':
+                for timing in pin['timing']:
+                    if timing['type'] == 'setup_rising':
+                        fname_setup_rise = cell.name + '/setup/rise/' + cell.name
+                        fname_setup_fall = cell.name + '/setup/fall/' + cell.name
+                        related_slews = [float(slew) for slew in timing['related_slew']]
+                        constrained_slews = [float(slew) for slew in timing['constrained_slew']]
+                        fill_measure_files_con(fname_setup_rise, related_slews, constrained_slews, 'setup')
+                        fill_measure_files_con(fname_setup_fall, related_slews, constrained_slews, 'setup')
 
 
 def fill_skeleton_setup_hold(cell, file_name, constraint, is_rising):
     f = open(file_name, "w")
     f.write(".include " + cell.path + "\n\n")
-    out = 'wrong_output'
+    f.write(".param td_start = D_START\n")
+    f.write(".param td_start_end = D_START_END\n")
+    f.write(".param td_end = {td_start + td_start_end}\n")
+    f.write(".param tc_start = 20n\n")
+    f.write(".param tc_start_end = C_START_END\n")
+    f.write(".param tc_end = {tc_start + tc_start_end}\n\n")
+    out_q = 'wrong_output'
+    out_qm = 'wrong_output'
 
     if constraint == "setup":
         if is_rising:
             for pin in cell.pins:
                 if pin['type'] == 'input':
-                    f.write("V"+pin['name']+' '+pin['name']+' Gnd 0 PWL(0 0 D_START 0 D_END 2.5)\n')
+                    f.write("V"+pin['name']+' '+pin['name']+' Gnd 0 PWL(0 0 td_start 0 td_end 2.5)\n')
                 elif pin['type'] == 'preset':
                     f.write("V"+pin['name']+' '+pin['name']+" Gnd 0\n")
                 elif pin['type'] == 'clear':
                     f.write("V"+pin['name']+' '+pin['name']+" Gnd 2.5 PWL(0 2.5 2n 2.5 2.1n 0)\n")
                 elif pin['type'] == 'power':
-                    f.write("V"+pin['name']+' '+pin['name']+" Gnd 2.5\n")
+                    f.write("Vpower "+pin['name']+" Gnd 2.5\n")
                 elif pin['type'] == 'clock':
-                    f.write("V" + pin['name'] + ' ' + pin['name'] + ' Gnd 0 PWL(0 0 20n 0 C_END 2.5)\n')
+                    f.write("V" + pin['name'] + ' ' + pin['name'] + ' Gnd 0 PWL(0 0 tc_start 0 tc_end 2.5)\n')
                 elif pin['type'] == 'output':
-                    out = pin['name']
-            f.write('C1 ' + out + ' Gnd 100f\n')
+                    if pin['function'] == 'IQ':
+                        out_q = pin['name']
+                    elif pin['function'] == 'IQN':
+                        out_qm = pin['name']
+            f.write('C1 ' + out_q + ' Gnd 10f\n')
+            f.write('C2 ' + out_qm + ' Gnd 10f\n')
             f.write('X1 ' + cell.signature + ' ' + cell.name + '\n')
-            f.write('.tran 50p 100n\n.control\n\tlet slew=0\n\trun\n\tmeas tran slew TRIG v('+
-                    out+') VAL=0.25 RISE=1 TARG v('+out+
-                    ') VAL=2.25 RISE=1\n\techo \"$&slew\" > SETUP_RIS_MEAS.txt\n\tquit\n.endc\n\n.end')
+            f.write('.tran 50p 100n\n.control\n\tlet delay=0\n\trun\n\tmeas tran delay TRIG v('+
+                    out_q+') VAL=0.75 RISE=1 TARG v('+out_q+
+                    ') VAL=1.75 RISE=1\n\techo \"$&delay\" > TEMP_OUT.txt\n\tquit\n.endc\n\n.end')
+        else:
+            for pin in cell.pins:
+                if pin['type'] == 'input':
+                    f.write("V"+pin['name']+' '+pin['name']+' Gnd 2.5 PWL(0 2.5 td_start 2.5 td_end 0)\n')
+                elif pin['type'] == 'preset':
+                    f.write("V"+pin['name']+' '+pin['name']+" Gnd 2.5 PWL(0 2.5 2n 2.5 2.1n 0)\n")
+                elif pin['type'] == 'clear':
+                    f.write("V"+pin['name']+' '+pin['name']+" Gnd 0\n")
+                elif pin['type'] == 'power':
+                    f.write("Vpower "+pin['name']+" Gnd 2.5\n")
+                elif pin['type'] == 'clock':
+                    f.write("V" + pin['name'] + ' ' + pin['name'] + ' Gnd 0 PWL(0 0 tc_start 0 tc_end 2.5)\n')
+                elif pin['type'] == 'output':
+                    if pin['function'] == 'IQ':
+                        out_q = pin['name']
+                    elif pin['function'] == 'IQN':
+                        out_qm = pin['name']
+            f.write('C1 ' + out_q + ' Gnd 10f\n')
+            f.write('C2 ' + out_qm + ' Gnd 10f\n')
+            f.write('X1 ' + cell.signature + ' ' + cell.name + '\n')
+            f.write('.tran 50p 100n\n.control\n\tlet delay=0\n\trun\n\tmeas tran slew TRIG v('+
+                    out_q+') VAL=1.75 FALL=1 TARG v('+out_q+
+                    ') VAL=0.75 FALL=1\n\techo \"$&delay\" > TEMP_OUT.txt\n\tquit\n.endc\n\n.end')
+    elif constraint == 'hold':
+        if not is_rising:
+            for pin in cell.pins:
+                if pin['type'] == 'input':
+                    f.write("V"+pin['name']+' '+pin['name']+' Gnd 0 PWL(0 0 td_start 0 td_end 2.5)\n')
+                elif pin['type'] == 'preset':
+                    f.write("V" + pin['name'] + ' ' + pin['name'] + " Gnd 2.5 PWL(0 2.5 2n 2.5 2.1n 0)\n")
+                elif pin['type'] == 'clear':
+                    f.write("V"+pin['name']+' '+pin['name']+" Gnd 0\n")
+                elif pin['type'] == 'power':
+                    f.write("Vpower "+pin['name']+" Gnd 2.5\n")
+                elif pin['type'] == 'clock':
+                    f.write("V" + pin['name'] + ' ' + pin['name'] + ' Gnd 0 PWL(0 0 tc_start 0 tc_end 2.5)\n')
+                elif pin['type'] == 'output':
+                    if pin['function'] == 'IQ':
+                        out_q = pin['name']
+                    elif pin['function'] == 'IQN':
+                        out_qm = pin['name']
+            f.write('C1 ' + out_q + ' Gnd 10f\n')
+            f.write('C2 ' + out_qm + ' Gnd 10f\n')
+            f.write('X1 ' + cell.signature + ' ' + cell.name + '\n')
+            f.write('.tran 50p 100n\n.control\n\tlet delay=0\n\trun\n\tmeas tran delay TRIG v('+
+                    out_q+') VAL=1.75 FALL=1 TARG v('+out_q+
+                    ') FALL=0.75 RISE=1\n\techo \"$&delay\" > TEMP_OUT.txt\n\tquit\n.endc\n\n.end')
+        else:
+            for pin in cell.pins:
+                if pin['type'] == 'input':
+                    f.write("V"+pin['name']+' '+pin['name']+' Gnd 2.5 PWL(0 2.5 td_start 2.5 td_end 0)\n')
+                elif pin['type'] == 'preset':
+                    f.write("V"+pin['name']+' '+pin['name']+" Gnd 0\n")
+                elif pin['type'] == 'clear':
+                    f.write("V" + pin['name'] + ' ' + pin['name'] + " Gnd 2.5 PWL(0 2.5 2n 2.5 2.1n 0)\n")
+                elif pin['type'] == 'power':
+                    f.write("Vpower "+pin['name']+" Gnd 2.5\n")
+                elif pin['type'] == 'clock':
+                    f.write("V" + pin['name'] + ' ' + pin['name'] + ' Gnd 0 PWL(0 0 tc_start 0 tc_end 2.5)\n')
+                elif pin['type'] == 'output':
+                    if pin['function'] == 'IQ':
+                        out_q = pin['name']
+                    elif pin['function'] == 'IQN':
+                        out_qm = pin['name']
+            f.write('C1 ' + out_q + ' Gnd 10f\n')
+            f.write('C2 ' + out_qm + ' Gnd 10f\n')
+            f.write('X1 ' + cell.signature + ' ' + cell.name + '\n')
+            f.write('.tran 50p 100n\n.control\n\tlet delay=0\n\trun\n\tmeas tran slew TRIG v('+
+                    out_q+') VAL=0.75 RISE=1 TARG v('+out_q+
+                    ') VAL=1.75 RISE=1\n\techo \"$&delay\" > TEMP_OUT.txt\n\tquit\n.endc\n\n.end')
     f.close()
 
 def make_skeleton_files(cell):
@@ -227,14 +338,71 @@ def make_skeleton_files(cell):
         for pin in cell.pins:
             if pin['type'] == 'input':
                 for timing in pin['timing']:
-                    if timing['timing_type'] == "setup_rising":
+                    if timing['type'] == "setup_rising":
                         print(pin['name'])
                         fname_setup_rising_rise = 'skeleton_files/' + cell.name + '/setup/rise/' + cell.name + '_skeleton.txt'
                         fname_setup_rising_fall = 'skeleton_files/' + cell.name + '/setup/fall/' + cell.name + '_skeleton.txt'
                         fill_skeleton_setup_hold(cell, fname_setup_rising_rise, "setup", True)
-                    elif timing['timing_type'] == "hold_rising":
+                        fill_skeleton_setup_hold(cell, fname_setup_rising_fall, "setup", False)
+                    elif timing['type'] == "hold_rising":
                         fname_hold_rising_rise = 'skeleton_files/' + cell.name + '/hold/rise/' + cell.name + '_skeleton.txt'
                         fname_hold_rising_fall = 'skeleton_files/' + cell.name + '/hold/fall/' + cell.name + '_skeleton.txt'
+                        fill_skeleton_setup_hold(cell, fname_hold_rising_rise, "hold", True)
+                        fill_skeleton_setup_hold(cell, fname_hold_rising_fall, "hold", False)
+
+
+def run_setup(cell):
+    max_iter = 100
+    step = 0.1
+    tc_start = 20
+    t_init = 7
+
+    meas_setup_rise_files = os.listdir("measure_files/" + cell.name + "/setup/rise/")
+    meas_setup_fall_files = os.listdir("measure_files/" + cell.name + "/setup/fall/")
+
+    for file in meas_setup_rise_files:
+        f_meas = open("measure_files/"+cell.name+"/setup/rise/"  +file, 'r')
+        meas_data = f_meas.read()
+        f_meas.close()
+
+
+        for i in range(max_iter):
+            f_temp = open("meas_con_temp.spice", 'w')
+            temp_data = meas_data.replace('D_START', str(t_init + i*step)+'n')
+            f_temp.write(temp_data)
+            f_temp.close()
+            os.system("ngspice meas_con_temp.spice > suppress.txt")
+            f_temp_out = open("TEMP_OUT.txt", 'r')
+            temp_out_data = f_temp_out.read()
+            f_temp_out.close()
+            if temp_out_data == '0\n':
+                setup_rise = 1.05*(tc_start - (t_init + i*step))
+                f_meas_out = open("out_measure_files/"+cell.name + "/setup/rise/" + file, 'w')
+                f_meas_out.write(str(setup_rise))
+                f_meas_out.close()
+                break
+
+    for file in meas_setup_fall_files:
+        f_meas = open("measure_files/" + cell.name + "/setup/fall/" + file, 'r')
+        meas_data = f_meas.read()
+        f_meas.close()
+
+        for i in range(max_iter):
+            f_temp = open("meas_con_temp.spice", 'w')
+            temp_data = meas_data.replace('D_START', str(t_init + i * step) + 'n')
+            f_temp.write(temp_data)
+            f_temp.close()
+            os.system("ngspice meas_con_temp.spice > suppress.txt")
+            f_temp_out = open("TEMP_OUT.txt", 'r')
+            temp_out_data = f_temp_out.read()
+            f_temp_out.close()
+            if temp_out_data == '0\n':
+                setup_rise = 1.05 * (tc_start - (t_init + i * step))
+                f_meas_out = open("out_measure_files/" + cell.name + "/setup/fall/" + file, 'w')
+                f_meas_out.write(str(setup_rise))
+                f_meas_out.close()
+                break
+
 
 config_path = "/home/znikolaos-g/VLSI/Project/Part2/config.json"
 cells = parse_config(config_path)
@@ -305,11 +473,15 @@ for cell in cells:
     make_skeleton_files(cell)
     make_measure_files(cell)
 
-spice_dirs = os.listdir("measure_files/")
 
-for spice_dir in spice_dirs:
-    spice_files = os.listdir("measure_files/"+spice_dir+'/')
-    for spice_file in spice_files:
-        if os.path.isfile("measure_files/"+spice_dir+"/"+spice_file):
-            # for combinational gates
-            os.system("ngspice "+"measure_files/"+spice_dir+"/"+spice_file)
+for cell in cells:
+    if cell.type == 'sequential':
+        run_setup(cell)
+#spice_dirs = os.listdir("measure_files/")
+
+#for spice_dir in spice_dirs:
+#    spice_files = os.listdir("measure_files/"+spice_dir+'/')
+#    for spice_file in spice_files:
+#        if os.path.isfile("measure_files/"+spice_dir+"/"+spice_file):
+#            # for combinational gates
+#            os.system("ngspice "+"measure_files/"+spice_dir+"/"+spice_file)
