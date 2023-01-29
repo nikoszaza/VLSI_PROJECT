@@ -100,7 +100,7 @@ def copy_file_to_file(source_file, dest_file):
 
 
 def fill_measure_files_con(sub_name, related_slews, constrained_slews, con_type):
-    if con_type == 'setup':
+    if con_type == 'setup' or con_type == 'hold':
         f_skeleton = open('skeleton_files/' + sub_name + '_skeleton.txt', "r")
         skeleton_data = f_skeleton.read()
         f_skeleton.close()
@@ -116,6 +116,7 @@ def fill_measure_files_con(sub_name, related_slews, constrained_slews, con_type)
 
                 f_measure.write(measure_data)
                 f_measure.close()
+
 
 
 def fill_measure_files(sub_name, source_slews, loads, is_related_ris):
@@ -182,6 +183,13 @@ def make_measure_files(cell):
                         constrained_slews = [float(slew) for slew in timing['constrained_slew']]
                         fill_measure_files_con(fname_setup_rise, related_slews, constrained_slews, 'setup')
                         fill_measure_files_con(fname_setup_fall, related_slews, constrained_slews, 'setup')
+                    elif timing['type'] == 'hold_rising':
+                        fname_hold_rise = cell.name + '/hold/rise/' + cell.name
+                        fname_hold_fall = cell.name + '/hold/fall/' + cell.name
+                        related_slews = [float(slew) for slew in timing['related_slew']]
+                        constrained_slews = [float(slew) for slew in timing['constrained_slew']]
+                        fill_measure_files_con(fname_hold_rise, related_slews, constrained_slews, 'hold')
+                        fill_measure_files_con(fname_hold_fall, related_slews, constrained_slews, 'hold')
 
 
 def fill_skeleton_setup_hold(cell, file_name, constraint, is_rising):
@@ -217,9 +225,9 @@ def fill_skeleton_setup_hold(cell, file_name, constraint, is_rising):
             f.write('C1 ' + out_q + ' Gnd 10f\n')
             f.write('C2 ' + out_qm + ' Gnd 10f\n')
             f.write('X1 ' + cell.signature + ' ' + cell.name + '\n')
-            f.write('.tran 50p 100n\n.control\n\tlet delay=0\n\trun\n\tmeas tran delay TRIG v('+
+            f.write('.tran 50p 100n\n.control\n\tlet slew=0\n\trun\n\tmeas tran slew TRIG v('+
                     out_q+') VAL=0.75 RISE=1 TARG v('+out_q+
-                    ') VAL=1.75 RISE=1\n\techo \"$&delay\" > TEMP_OUT.txt\n\tquit\n.endc\n\n.end')
+                    ') VAL=1.75 RISE=1\n\techo \"$&slew\" > TEMP_OUT.txt\n\tquit\n.endc\n\n.end')
         else:
             for pin in cell.pins:
                 if pin['type'] == 'input':
@@ -240,9 +248,9 @@ def fill_skeleton_setup_hold(cell, file_name, constraint, is_rising):
             f.write('C1 ' + out_q + ' Gnd 10f\n')
             f.write('C2 ' + out_qm + ' Gnd 10f\n')
             f.write('X1 ' + cell.signature + ' ' + cell.name + '\n')
-            f.write('.tran 50p 100n\n.control\n\tlet delay=0\n\trun\n\tmeas tran slew TRIG v('+
+            f.write('.tran 50p 100n\n.control\n\tlet slew=0\n\trun\n\tmeas tran slew TRIG v('+
                     out_q+') VAL=1.75 FALL=1 TARG v('+out_q+
-                    ') VAL=0.75 FALL=1\n\techo \"$&delay\" > TEMP_OUT.txt\n\tquit\n.endc\n\n.end')
+                    ') VAL=0.75 FALL=1\n\techo \"$&slew\" > TEMP_OUT.txt\n\tquit\n.endc\n\n.end')
     elif constraint == 'hold':
         if not is_rising:
             for pin in cell.pins:
@@ -264,9 +272,9 @@ def fill_skeleton_setup_hold(cell, file_name, constraint, is_rising):
             f.write('C1 ' + out_q + ' Gnd 10f\n')
             f.write('C2 ' + out_qm + ' Gnd 10f\n')
             f.write('X1 ' + cell.signature + ' ' + cell.name + '\n')
-            f.write('.tran 50p 100n\n.control\n\tlet delay=0\n\trun\n\tmeas tran delay TRIG v('+
+            f.write('.tran 50p 100n\n.control\n\tlet slew=0\n\trun\n\tmeas tran slew TRIG v('+
                     out_q+') VAL=1.75 FALL=1 TARG v('+out_q+
-                    ') FALL=0.75 RISE=1\n\techo \"$&delay\" > TEMP_OUT.txt\n\tquit\n.endc\n\n.end')
+                    ') VAL=0.75 FALL=1\n\techo \"$&slew\" > TEMP_OUT.txt\n\tquit\n.endc\n\n.end')
         else:
             for pin in cell.pins:
                 if pin['type'] == 'input':
@@ -287,9 +295,9 @@ def fill_skeleton_setup_hold(cell, file_name, constraint, is_rising):
             f.write('C1 ' + out_q + ' Gnd 10f\n')
             f.write('C2 ' + out_qm + ' Gnd 10f\n')
             f.write('X1 ' + cell.signature + ' ' + cell.name + '\n')
-            f.write('.tran 50p 100n\n.control\n\tlet delay=0\n\trun\n\tmeas tran slew TRIG v('+
+            f.write('.tran 50p 100n\n.control\n\tlet slew=0\n\trun\n\tmeas tran slew TRIG v('+
                     out_q+') VAL=0.75 RISE=1 TARG v('+out_q+
-                    ') VAL=1.75 RISE=1\n\techo \"$&delay\" > TEMP_OUT.txt\n\tquit\n.endc\n\n.end')
+                    ') VAL=1.75 RISE=1\n\techo \"$&slew\" > TEMP_OUT.txt\n\tquit\n.endc\n\n.end')
     f.close()
 
 def make_skeleton_files(cell):
@@ -352,23 +360,27 @@ def make_skeleton_files(cell):
 
 
 def run_setup(cell):
-    max_iter = 100
+    max_iter = 10000
     step = 0.1
     tc_start = 20
-    t_init = 7
+    td_init = 6
 
     meas_setup_rise_files = os.listdir("measure_files/" + cell.name + "/setup/rise/")
     meas_setup_fall_files = os.listdir("measure_files/" + cell.name + "/setup/fall/")
 
     for file in meas_setup_rise_files:
-        f_meas = open("measure_files/"+cell.name+"/setup/rise/"  +file, 'r')
+        f_meas = open("measure_files/"+cell.name+"/setup/rise/" + file, 'r')
         meas_data = f_meas.read()
         f_meas.close()
-
+        file_name_list = file.split('_')
+        related_slew = file_name_list[-3]
+        constrained_slew = file_name_list[-2]
+        related_start_end = float(related_slew)/0.4
+        constrained_start_end = float(constrained_slew)/0.4
 
         for i in range(max_iter):
             f_temp = open("meas_con_temp.spice", 'w')
-            temp_data = meas_data.replace('D_START', str(t_init + i*step)+'n')
+            temp_data = meas_data.replace('D_START', str(td_init + i*step)+'n')
             f_temp.write(temp_data)
             f_temp.close()
             os.system("ngspice meas_con_temp.spice > suppress.txt")
@@ -376,7 +388,7 @@ def run_setup(cell):
             temp_out_data = f_temp_out.read()
             f_temp_out.close()
             if temp_out_data == '0\n':
-                setup_rise = 1.05*(tc_start - (t_init + i*step))
+                setup_rise = 1.05*(tc_start + related_start_end/2 - (td_init + i*step + constrained_start_end/2))
                 f_meas_out = open("out_measure_files/"+cell.name + "/setup/rise/" + file, 'w')
                 f_meas_out.write(str(setup_rise))
                 f_meas_out.close()
@@ -386,10 +398,15 @@ def run_setup(cell):
         f_meas = open("measure_files/" + cell.name + "/setup/fall/" + file, 'r')
         meas_data = f_meas.read()
         f_meas.close()
+        file_name_list = file.split('_')
+        related_slew = file_name_list[-3]
+        constrained_slew = file_name_list[-2]
+        related_start_end = float(related_slew) / 0.4
+        constrained_start_end = float(constrained_slew) / 0.4
 
         for i in range(max_iter):
             f_temp = open("meas_con_temp.spice", 'w')
-            temp_data = meas_data.replace('D_START', str(t_init + i * step) + 'n')
+            temp_data = meas_data.replace('D_START', str(td_init + i * step) + 'n')
             f_temp.write(temp_data)
             f_temp.close()
             os.system("ngspice meas_con_temp.spice > suppress.txt")
@@ -397,9 +414,73 @@ def run_setup(cell):
             temp_out_data = f_temp_out.read()
             f_temp_out.close()
             if temp_out_data == '0\n':
-                setup_rise = 1.05 * (tc_start - (t_init + i * step))
+                setup_fall = 1.05*(tc_start + related_start_end/2- (td_init + i*step + constrained_start_end/2))
                 f_meas_out = open("out_measure_files/" + cell.name + "/setup/fall/" + file, 'w')
-                f_meas_out.write(str(setup_rise))
+                f_meas_out.write(str(setup_fall))
+                f_meas_out.close()
+                break
+
+
+def run_hold(cell):
+    max_iter = 10000
+    step = -0.1
+    tc_start = 20
+    td_init = 24
+
+    meas_setup_rise_files = os.listdir("measure_files/" + cell.name + "/hold/rise/")
+    meas_setup_fall_files = os.listdir("measure_files/" + cell.name + "/hold/fall/")
+
+    for file in meas_setup_rise_files:
+        f_meas = open("measure_files/" + cell.name + "/hold/rise/" + file, 'r')
+        meas_data = f_meas.read()
+        f_meas.close()
+        file_name_list = file.split('_')
+        related_slew = file_name_list[-3]
+        constrained_slew = file_name_list[-2]
+        related_start_end = float(related_slew) / 0.4
+        constrained_start_end = float(constrained_slew) / 0.4
+
+        for i in range(max_iter):
+            f_temp = open("meas_con_temp.spice", 'w')
+            temp_data = meas_data.replace('D_START', str(td_init + i * step) + 'n')
+            f_temp.write(temp_data)
+            f_temp.close()
+            os.system("ngspice meas_con_temp.spice > suppress.txt")
+            f_temp_out = open("TEMP_OUT.txt", 'r')
+            temp_out_data = f_temp_out.read()
+            f_temp_out.close()
+            if temp_out_data == '0\n':
+                hold_rise = 1.05 * (
+                            -tc_start - related_start_end / 2 + (td_init + i * step + constrained_start_end / 2))
+                f_meas_out = open("out_measure_files/" + cell.name + "/hold/rise/" + file, 'w')
+                f_meas_out.write(str(hold_rise))
+                f_meas_out.close()
+                break
+
+    for file in meas_setup_fall_files:
+        f_meas = open("measure_files/" + cell.name + "/hold/fall/" + file, 'r')
+        meas_data = f_meas.read()
+        f_meas.close()
+        file_name_list = file.split('_')
+        related_slew = file_name_list[-3]
+        constrained_slew = file_name_list[-2]
+        related_start_end = float(related_slew) / 0.4
+        constrained_start_end = float(constrained_slew) / 0.4
+
+        for i in range(max_iter):
+            f_temp = open("meas_con_temp.spice", 'w')
+            temp_data = meas_data.replace('D_START', str(td_init + i * step) + 'n')
+            f_temp.write(temp_data)
+            f_temp.close()
+            os.system("ngspice meas_con_temp.spice > suppress.txt")
+            f_temp_out = open("TEMP_OUT.txt", 'r')
+            temp_out_data = f_temp_out.read()
+            f_temp_out.close()
+            if temp_out_data == '0\n':
+                hold_fall = 1.05 * (
+                            -tc_start - related_start_end / 2 + (td_init + i * step + constrained_start_end / 2))
+                f_meas_out = open("out_measure_files/" + cell.name + "/hold/fall/" + file, 'w')
+                f_meas_out.write(str(hold_fall))
                 f_meas_out.close()
                 break
 
@@ -476,7 +557,11 @@ for cell in cells:
 
 for cell in cells:
     if cell.type == 'sequential':
-        run_setup(cell)
+        #run_setup(cell)
+        #run_hold(cell)
+        print("hi")
+
+
 #spice_dirs = os.listdir("measure_files/")
 
 #for spice_dir in spice_dirs:
