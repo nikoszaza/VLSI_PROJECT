@@ -95,11 +95,15 @@
 				"timing": [
 					{
 						"related_pin": "CLK",
-						"timing_type": "setup_rising"
+						"type": "setup_rising",
+						"related_slew": ["0.0042", "0.0307", "0.0768", "0.48", "3"],
+						"constrained_slew": ["0.0042", "0.0307", "0.0768", "0.48", "3"]
 					},
 					{
 						"related_pin": "CLK",
-						"timing_type": "hold_rising"
+						"type": "hold_rising",
+						"related_slew": ["0.0042", "0.0307", "0.0768", "0.48", "3"],
+						"constrained_slew": ["0.0042", "0.0307", "0.0768", "0.48", "3"]
 					}
 				]
 			},
@@ -109,11 +113,15 @@
 				"timing": [
 					{
 						"related_pin": "CLK",
-						"timing_type": "recovery_rising"
+						"type": "recovery_rising",
+						"related_slew": ["0.0042", "0.0307", "0.0768", "0.48", "3"],
+						"constrained_slew": ["0.0042", "0.0307", "0.0768", "0.48", "3"]
 					},
 					{
 						"related_pin": "CLK",
-						"timing_type": "removal_rising"
+						"type": "removal_rising",
+						"related_slew": ["0.0042", "0.0307", "0.0768", "0.48", "3"],
+						"constrained_slew": ["0.0042", "0.0307", "0.0768", "0.48", "3"]
 					}
 				]
 			},
@@ -123,7 +131,15 @@
 				"timing": [
 					{
 						"related_pin": "CLK",
-						"timing_type": "removal_rising"
+						"type": "recovery_rising",
+						"related_slew": ["0.0042", "0.0307", "0.0768", "0.48", "3"],
+						"constrained_slew": ["0.0042", "0.0307", "0.0768", "0.48", "3"]
+					},
+					{
+						"related_pin": "CLK",
+						"type": "removal_rising",
+						"related_slew": ["0.0042", "0.0307", "0.0768", "0.48", "3"],
+						"constrained_slew": ["0.0042", "0.0307", "0.0768", "0.48", "3"]
 					}
 				]
 			},
@@ -138,11 +154,38 @@
 			{
 				"name": "Q",
 				"type": "output",
+				"function": "IQ",
 				"timing": [
 					{
 						"related_pin": "CLK",
 						"timing_sense": "non_unate",
-						"timing_type": "rising_edge"
+						"type": "rising_edge",
+						"loads": ["0.0017" ,"0.0062", "0.0232", "0.0865", "0.3221", "1.2"],
+						"source_slews": ["0.0042", "0.0307", "0.0768", "0.192", "0.48", "1.2", "3"]
+					},
+					{
+						"related_pin": "R",
+						"type": "clear",
+						"sense": "negative_unate"
+					},
+					{	
+						"related_pin": "S",
+						"type": "preset",
+						"sense": "positive_unate"
+					}
+				] 
+			},
+			{
+				"name": "Qm",
+				"type": "output",
+				"function": "IQN",
+				"timing": [
+					{
+						"related_pin": "CLK",
+						"timing_sense": "non_unate",
+						"timing_type": "rising_edge",
+						"loads": ["0.0017" ,"0.0062", "0.0232", "0.0865", "0.3221", "1.2"],
+						"source_slews": ["0.0042", "0.0307", "0.0768", "0.192", "0.48", "1.2", "3"]
 					},
 					{
 						"related_pin": "B",
