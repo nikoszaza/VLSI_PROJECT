@@ -3,6 +3,7 @@ import os
 from pathlib import Path
 import json
 import shutil
+import sys
 
 def delete(path):
     """path could either be relative or absolute. """
@@ -156,12 +157,29 @@ def fill_measure_files(sub_name, source_slews, loads, is_related_ris):
             f_measure.close()
 
 
+def fill_measure_files_tim_seq(sub_name, source_slews, loads):
+    f_skeleton = open('skeleton_files/' + sub_name + '_skeleton.txt', "r")
+    skeleton_data = f_skeleton.read()
+    f_skeleton.close()
+
+    for source_slew in source_slews:
+        for load in loads:
+            f_measure = open('measure_files/' + sub_name + '_' + str(source_slew)
+                             + '_' + str(load) + '_.txt', "w")
+            t1 = source_slew / 0.4 + 20
+            measure_data = skeleton_data.replace("T_END", str(t1) + 'n')
+            measure_data = measure_data.replace("LOAD", str(load) + 'p')
+            measure_data = measure_data.replace("MEAS_OUT.txt", "out_measure_files/" + sub_name + "_" + str(source_slew)
+                                                + '_' + str(load) + '_meas.txt')
+            f_measure.write(measure_data)
+            f_measure.close()
+
+
 def make_measure_files(cell):
     if cell.type == 'combinational':
         for pin in cell.pins:
             if pin['type'] == 'output':
                 for timing in pin['timing']:
-                    print(timing)
                     if timing['timing_sense'] == 'binate':
                         if timing['binate_type'] == 'positive 0':
                             fname_in_ris_out_ris = cell.name + '/timing_' + timing['related_pin'] + '_rising_' +\
@@ -230,6 +248,62 @@ def make_measure_files(cell):
                         related_slews = [float(slew) for slew in timing['related_slew']]
                         constrained_slews = [float(slew) for slew in timing['constrained_slew']]
                         fill_measure_files_con(fname_removal, related_slews, constrained_slews, 'removal')
+            elif pin['type'] == 'output':
+                if pin['function'] == 'IQ':
+                    for timing in pin['timing']:
+                        loads = [float(load) for load in timing['loads']]
+                        source_slews = [float(source_slew) for source_slew in timing['source_slews']]
+                        if timing['related_pin'] == 'CLK':
+                            fname_timing = cell.name + '/timing/out/rel_clock/pos/' + cell.name
+                            fill_measure_files_tim_seq(fname_timing, source_slews, loads)
+                            fname_timing = cell.name + '/timing/out/rel_clock/zero/' + cell.name
+                            fill_measure_files_tim_seq(fname_timing, source_slews, loads)
+                        elif timing['related_pin'] == 'R':
+                            fname_timing = cell.name + '/timing/out/rel_clear/d_c_sn/' + cell.name
+                            fill_measure_files_tim_seq(fname_timing, source_slews, loads)
+                            fname_timing = cell.name + '/timing/out/rel_clear/d_cn_sn/' + cell.name
+                            fill_measure_files_tim_seq(fname_timing, source_slews, loads)
+                            fname_timing = cell.name + '/timing/out/rel_clear/dn_c_sn/' + cell.name
+                            fill_measure_files_tim_seq(fname_timing, source_slews, loads)
+                            fname_timing = cell.name + '/timing/out/rel_clear/dn_cn_sn/' + cell.name
+                            fill_measure_files_tim_seq(fname_timing, source_slews, loads)
+                        elif timing['related_pin'] == 'S':
+                            fname_timing = cell.name + '/timing/out/rel_set/d_c_rn/' + cell.name
+                            fill_measure_files_tim_seq(fname_timing, source_slews, loads)
+                            fname_timing = cell.name + '/timing/out/rel_set/d_cn_rn/' + cell.name
+                            fill_measure_files_tim_seq(fname_timing, source_slews, loads)
+                            fname_timing = cell.name + '/timing/out/rel_set/dn_c_rn/' + cell.name
+                            fill_measure_files_tim_seq(fname_timing, source_slews, loads)
+                            fname_timing = cell.name + '/timing/out/rel_set/dn_cn_rn/' + cell.name
+                            fill_measure_files_tim_seq(fname_timing, source_slews, loads)
+                elif pin['function'] == 'IQN':
+                    for timing in pin['timing']:
+                        loads = [float(load) for load in timing['loads']]
+                        source_slews = [float(source_slew) for source_slew in timing['source_slews']]
+                        if timing['related_pin'] == 'CLK':
+                            fname_timing = cell.name + '/timing/outn/rel_clock/pos/' + cell.name
+                            fill_measure_files_tim_seq(fname_timing, source_slews, loads)
+                            fname_timing = cell.name + '/timing/outn/rel_clock/zero/' + cell.name
+                            fill_measure_files_tim_seq(fname_timing, source_slews, loads)
+                        elif timing['related_pin'] == 'R':
+                            fname_timing = cell.name + '/timing/outn/rel_clear/d_c_sn/' + cell.name
+                            fill_measure_files_tim_seq(fname_timing, source_slews, loads)
+                            fname_timing = cell.name + '/timing/outn/rel_clear/d_cn_sn/' + cell.name
+                            fill_measure_files_tim_seq(fname_timing, source_slews, loads)
+                            fname_timing = cell.name + '/timing/outn/rel_clear/dn_c_sn/' + cell.name
+                            fill_measure_files_tim_seq(fname_timing, source_slews, loads)
+                            fname_timing = cell.name + '/timing/outn/rel_clear/dn_cn_sn/' + cell.name
+                            fill_measure_files_tim_seq(fname_timing, source_slews, loads)
+                        elif timing['related_pin'] == 'S':
+                            fname_timing = cell.name + '/timing/outn/rel_set/d_c_rn/' + cell.name
+                            fill_measure_files_tim_seq(fname_timing, source_slews, loads)
+                            fname_timing = cell.name + '/timing/outn/rel_set/d_cn_rn/' + cell.name
+                            fill_measure_files_tim_seq(fname_timing, source_slews, loads)
+                            fname_timing = cell.name + '/timing/outn/rel_set/dn_c_rn/' + cell.name
+                            fill_measure_files_tim_seq(fname_timing, source_slews, loads)
+                            fname_timing = cell.name + '/timing/outn/rel_set/dn_cn_rn/' + cell.name
+                            fill_measure_files_tim_seq(fname_timing, source_slews, loads)
+
 
 
 def fill_skeleton_setup_hold(cell, file_name, constraint, is_rising):
@@ -471,7 +545,7 @@ def fill_skeleton_timing_seq(cell, file_name, function, related, input_type, d_v
                     elif pin['type'] == 'power':
                         f.write("Vpower " + pin['name'] + " Gnd 2.5\n")
                     elif pin['type'] == 'clock':
-                        f.write("Vpower "+pin['name']+" Gnd 0 PWL(0 0 20n 0 T_END 2.5)\n")
+                        f.write("Vclock "+pin['name']+" Gnd 0 PWL(0 0 20n 0 T_END 2.5)\n")
                         inp = pin['name']
                     elif pin['type'] == 'output':
                         if pin['function'] == 'IQ':
@@ -497,7 +571,7 @@ def fill_skeleton_timing_seq(cell, file_name, function, related, input_type, d_v
                     elif pin['type'] == 'power':
                         f.write("Vpower " + pin['name'] + " Gnd 2.5\n")
                     elif pin['type'] == 'clock':
-                        f.write("Vpower "+pin['name']+" Gnd 0 PWL(0 0 20n 0 T_END 2.5)\n")
+                        f.write("Vclock "+pin['name']+" Gnd 0 PWL(0 0 20n 0 T_END 2.5)\n")
                         inp = pin['name']
                     elif pin['type'] == 'output':
                         if pin['function'] == 'IQ':
@@ -516,16 +590,16 @@ def fill_skeleton_timing_seq(cell, file_name, function, related, input_type, d_v
             if r_val == 0:
                 for pin in cell.pins:
                     if pin['type'] == 'input':
-                        f.write("V" + pin['name'] + ' ' + pin['name'] + ' Gnd ' + d_val + '\n')
+                        f.write("V" + pin['name'] + ' ' + pin['name'] + ' Gnd ' + str(d_val) + '\n')
                     elif pin['type'] == 'preset':
-                        f.write("V" + pin['name'] + ' ' + pin['name'] + ' Gnd 0 PWL(0 0 20n 0 T_END 0)\n')
+                        f.write("V" + pin['name'] + ' ' + pin['name'] + ' Gnd 0 PWL(0 0 20n 0 T_END 2.5)\n')
                         inp = pin['name']
                     elif pin['type'] == 'clear':
                         f.write("V" + pin['name'] + ' ' + pin['name'] + ' Gnd 2.5 PWL(0 2.5 2n 2.5 2.1n 0)\n')
                     elif pin['type'] == 'power':
                         f.write("Vpower " + pin['name'] + " Gnd 2.5\n")
                     elif pin['type'] == 'clock':
-                        f.write("Vpower "+pin['name']+" Gnd " + c_val + "\n")
+                        f.write("Vclock "+pin['name']+" Gnd " + str(c_val) + "\n")
                     elif pin['type'] == 'output':
                         if pin['function'] == 'IQ':
                             out_q = pin['name']
@@ -543,16 +617,16 @@ def fill_skeleton_timing_seq(cell, file_name, function, related, input_type, d_v
             if s_val == 0:
                 for pin in cell.pins:
                     if pin['type'] == 'input':
-                        f.write("V" + pin['name'] + ' ' + pin['name'] + ' Gnd ' + d_val + '\n')
+                        f.write("V" + pin['name'] + ' ' + pin['name'] + ' Gnd ' + str(d_val) + '\n')
                     elif pin['type'] == 'preset':
                         f.write("V" + pin['name'] + ' ' + pin['name'] + ' Gnd 2.5 PWL(0 2.5 2n 2.5 2.1n 0)\n')
                     elif pin['type'] == 'clear':
-                        f.write("V" + pin['name'] + ' ' + pin['name'] + ' Gnd 0 PWL(0 0 20n 0 T_END 0)\n')
+                        f.write("V" + pin['name'] + ' ' + pin['name'] + ' Gnd 0 PWL(0 0 20n 0 T_END 2.5)\n')
                         inp = pin['name']
                     elif pin['type'] == 'power':
                         f.write("Vpower " + pin['name'] + " Gnd 2.5\n")
                     elif pin['type'] == 'clock':
-                        f.write("Vpower "+pin['name']+" Gnd " + c_val +"\n")
+                        f.write("Vclock "+pin['name']+" Gnd " + str(c_val) +"\n")
                     elif pin['type'] == 'output':
                         if pin['function'] == 'IQ':
                             out_q = pin['name']
@@ -566,19 +640,22 @@ def fill_skeleton_timing_seq(cell, file_name, function, related, input_type, d_v
                         ') VAL=0.75 FALL=1\n\tmeas tran delay TRIG v('+ inp
                         +') VAL = 1.25 RISE=1 TARG v(' + out_q
                         +') VAL = 1.25 FALL=1\n\techo \"slew $&slew delay $&delay\" > MEAS_OUT.txt\n\tquit\n.endc\n\n.end')
-            else:
+    # Is IQN
+    else:
+        if related == 'clock':
+            if input_type == 'pos':
                 for pin in cell.pins:
                     if pin['type'] == 'input':
-                        f.write("V" + pin['name'] + ' ' + pin['name'] + ' Gnd ' + d_val + '\n')
-                    elif pin['type'] == 'preset':
                         f.write("V" + pin['name'] + ' ' + pin['name'] + ' Gnd 2.5\n')
+                    elif pin['type'] == 'preset':
+                        f.write("V" + pin['name'] + ' ' + pin['name'] + ' Gnd 0\n')
                     elif pin['type'] == 'clear':
-                        f.write("V" + pin['name'] + ' ' + pin['name'] + ' Gnd 0 PWL(0 0 20n 0 T_END 0)\n')
-                        inp = pin['name']
+                        f.write("V" + pin['name'] + ' ' + pin['name'] + ' Gnd 2.5 PWL(0 2.5 2n 2.5 2.1n 0)\n')
                     elif pin['type'] == 'power':
                         f.write("Vpower " + pin['name'] + " Gnd 2.5\n")
                     elif pin['type'] == 'clock':
-                        f.write("Vpower "+pin['name']+" Gnd " + c_val + "\n")
+                        f.write("Vclock "+pin['name']+" Gnd 0 PWL(0 0 20n 0 T_END 2.5)\n")
+                        inp = pin['name']
                     elif pin['type'] == 'output':
                         if pin['function'] == 'IQ':
                             out_q = pin['name']
@@ -587,15 +664,91 @@ def fill_skeleton_timing_seq(cell, file_name, function, related, input_type, d_v
                 f.write('C1 ' + out_q + ' Gnd LOAD\n')
                 f.write('C2 ' + out_qm + ' Gnd LOAD\n')
                 f.write('X1 ' + cell.signature + ' ' + cell.name + '\n')
-                f.write('.tran 50p 100n\n.control\n\trun\n\tmeas tran slew_fall TRIG v(' +
-                         out_q + ') VAL=1.75 FALL=1 TARG v(' + out_q +
-                        ') VAL=0.75 FALL=1\n\tmeas tran delay_fall TRIG v('+ inp
-                        +') VAL = 1.25 RISE=1 TARG v(' + out_q
-                        +') VAL = 1.25 FALL=1\n\tmeas tran slew_rise TRIG v(' +
-                        out_q + ') VAL=0.75 RISE=1 TARG v(' + out_q +
-                        ') VAL=1.75 RISE=1\n\tmeas tran delay_rise TRIG(' +
-                        inp + ') VAL=1.25 FALL=1 TARG v(' +
-                        out_q +') VAL=1.25 RISE=1\n\techo \"slew_fall $&slew_fall delay_fall $&delay_fall slew_rise $&slew_rise delay_rise $&delay_rise\" > MEAS_OUT.txt\n\tquit\n.endc\n\n.end')
+                f.write('.tran 50p 100n\n.control\n\trun\n\tmeas tran slew TRIG v(' +
+                        out_qm + ') VAL=1.75 FALL=1 TARG v(' + out_qm +
+                        ') VAL=0.75 FALL=1\n\tmeas tran delay TRIG v('+ inp
+                        +') VAL = 1.25 RISE=1 TARG v(' + out_qm
+                        +') VAL = 1.25 FALL=1\n\techo \"slew $&slew delay $&delay\" > MEAS_OUT.txt\n\tquit\n.endc\n\n.end')
+            elif input_type == 'zero':
+                for pin in cell.pins:
+                    if pin['type'] == 'input':
+                        f.write("V" + pin['name'] + ' ' + pin['name'] + ' Gnd 0\n')
+                    elif pin['type'] == 'preset':
+                        f.write("V" + pin['name'] + ' ' + pin['name'] + ' Gnd 2.5 PWL(0 2.5 2n 2.5 2.1n 0)\n')
+                    elif pin['type'] == 'clear':
+                        f.write("V" + pin['name'] + ' ' + pin['name'] + ' Gnd 0\n')
+                    elif pin['type'] == 'power':
+                        f.write("Vpower " + pin['name'] + " Gnd 2.5\n")
+                    elif pin['type'] == 'clock':
+                        f.write("Vclock "+pin['name']+" Gnd 0 PWL(0 0 20n 0 T_END 2.5)\n")
+                        inp = pin['name']
+                    elif pin['type'] == 'output':
+                        if pin['function'] == 'IQ':
+                            out_q = pin['name']
+                        elif pin['function'] == 'IQN':
+                            out_qm = pin['name']
+                f.write('C1 ' + out_q + ' Gnd LOAD\n')
+                f.write('C2 ' + out_qm + ' Gnd LOAD\n')
+                f.write('X1 ' + cell.signature + ' ' + cell.name + '\n')
+                f.write('.tran 50p 100n\n.control\n\trun\n\tmeas tran slew TRIG v(' +
+                        out_qm + ') VAL=0.75 RISE=1 TARG v(' + out_qm +
+                        ') VAL=1.75 RISE=1\n\tmeas tran delay TRIG v('+ inp
+                        +') VAL = 1.25 RISE=1 TARG v(' + out_qm
+                        +') VAL = 1.25 RISE=1\n\techo \"slew $&slew delay $&delay\" > MEAS_OUT.txt\n\tquit\n.endc\n\n.end')
+        elif related == 'set':
+            if r_val == 0:
+                for pin in cell.pins:
+                    if pin['type'] == 'input':
+                        f.write("V" + pin['name'] + ' ' + pin['name'] + ' Gnd ' + str(d_val) + '\n')
+                    elif pin['type'] == 'preset':
+                        f.write("V" + pin['name'] + ' ' + pin['name'] + ' Gnd 0 PWL(0 0 20n 0 T_END 2.5)\n')
+                        inp = pin['name']
+                    elif pin['type'] == 'clear':
+                        f.write("V" + pin['name'] + ' ' + pin['name'] + ' Gnd 2.5 PWL(0 2.5 2n 2.5 2.1n 0)\n')
+                    elif pin['type'] == 'power':
+                        f.write("Vpower " + pin['name'] + " Gnd 2.5\n")
+                    elif pin['type'] == 'clock':
+                        f.write("Vclock "+pin['name']+" Gnd " + str(c_val) + "\n")
+                    elif pin['type'] == 'output':
+                        if pin['function'] == 'IQ':
+                            out_q = pin['name']
+                        elif pin['function'] == 'IQN':
+                            out_qm = pin['name']
+                f.write('C1 ' + out_q + ' Gnd LOAD\n')
+                f.write('C2 ' + out_qm + ' Gnd LOAD\n')
+                f.write('X1 ' + cell.signature + ' ' + cell.name + '\n')
+                f.write('.tran 50p 100n\n.control\n\trun\n\tmeas tran slew TRIG v(' +
+                        out_qm + ') VAL=1.75 FALL=1 TARG v(' + out_qm +
+                        ') VAL=0.75 FALL=1\n\tmeas tran delay TRIG v('+ inp
+                        +') VAL = 1.25 RISE=1 TARG v(' + out_qm
+                        +') VAL = 1.25 FALL=1\n\techo \"slew $&slew delay $&delay\" > MEAS_OUT.txt\n\tquit\n.endc\n\n.end')
+        elif related == 'clear':
+            if s_val == 0:
+                for pin in cell.pins:
+                    if pin['type'] == 'input':
+                        f.write("V" + pin['name'] + ' ' + pin['name'] + ' Gnd ' + str(d_val) + '\n')
+                    elif pin['type'] == 'preset':
+                        f.write("V" + pin['name'] + ' ' + pin['name'] + ' Gnd 2.5 PWL(0 2.5 2n 2.5 2.1n 0)\n')
+                    elif pin['type'] == 'clear':
+                        f.write("V" + pin['name'] + ' ' + pin['name'] + ' Gnd 0 PWL(0 0 20n 0 T_END 2.5)\n')
+                        inp = pin['name']
+                    elif pin['type'] == 'power':
+                        f.write("Vpower " + pin['name'] + " Gnd 2.5\n")
+                    elif pin['type'] == 'clock':
+                        f.write("Vclock "+pin['name']+" Gnd " + str(c_val) +"\n")
+                    elif pin['type'] == 'output':
+                        if pin['function'] == 'IQ':
+                            out_q = pin['name']
+                        elif pin['function'] == 'IQN':
+                            out_qm = pin['name']
+                f.write('C1 ' + out_q + ' Gnd LOAD\n')
+                f.write('C2 ' + out_qm + ' Gnd LOAD\n')
+                f.write('X1 ' + cell.signature + ' ' + cell.name + '\n')
+                f.write('.tran 50p 100n\n.control\n\trun\n\tmeas tran slew TRIG v(' +
+                        out_qm + ') VAL=0.75 RISE=1 TARG v(' + out_qm +
+                        ') VAL=1.75 RISE=1\n\tmeas tran delay TRIG v('+ inp
+                        +') VAL = 1.25 RISE=1 TARG v(' + out_qm
+                        +') VAL = 1.25 RISE=1\n\techo \"slew $&slew delay $&delay\" > MEAS_OUT.txt\n\tquit\n.endc\n\n.end')
 
     f.close()
 
@@ -667,22 +820,77 @@ def make_skeleton_files(cell):
             elif pin['type'] == 'clear':
                 for timing in pin['timing']:
                     if timing['type'] == 'recovery_rising':
-                        print("Hiho")
                         fname_recovery = 'skeleton_files/' + cell.name + '/recovery/clear/' + cell.name + '_skeleton.txt'
                         fill_skeleton_recovery_removal(cell, fname_recovery, 'recovery', False)
                     elif timing['type'] == 'removal_rising':
                         fname_removal = 'skeleton_files/' + cell.name + '/removal/clear/' + cell.name + '_skeleton.txt'
                         fill_skeleton_recovery_removal(cell, fname_removal, 'removal', False)
             elif pin['type'] == 'output':
+                # fill_skeleton_timing_seq(cell, file_name, function, related, input_type, d_val, c_val, s_val, r_val)
                 if pin['function'] == 'IQ':
                     for timing in pin['timing']:
-                        print(timing)
                         if timing['type'] == 'rising_edge':
                             fname_pos_input = 'skeleton_files/' + cell.name + '/timing/out/rel_clock/pos/' + cell.name + '_skeleton.txt'
-                            fname_neg_input = 'skeleton_files/' + cell.name + '/timing/out/rel_clock/zero/' + cell.name + '_neg_skeleton.txt'
-                            fill_skeleton_timing_seq(cell, fname_pos_input, 'IQ', 'clock', 'pos', 1, 1, 1, 1)
-                            fill_skeleton_timing_seq(cell, fname_neg_input, 'IQ', 'clock', 'zero', 1, 1, 1, 1)
+                            fname_neg_input = 'skeleton_files/' + cell.name + '/timing/out/rel_clock/zero/' + cell.name + '_skeleton.txt'
+                            fill_skeleton_timing_seq(cell, fname_pos_input, 'IQ', 'clock', 'pos', None, None, None, None)
+                            fill_skeleton_timing_seq(cell, fname_neg_input, 'IQ', 'clock', 'zero', None, None, None, None)
+                        elif timing['type'] == 'clear':
+                            fname_d_c_s = 'skeleton_files/' + cell.name + '/timing/out/rel_clear/d_c_sn/' + cell.name + '_skeleton.txt'
+                            fill_skeleton_timing_seq(cell, fname_d_c_s, 'IQ', 'clear', None, 2.5, 2.5, 0, None)
 
+
+                            fname_d_c_s = 'skeleton_files/' + cell.name + '/timing/out/rel_clear/d_cn_sn/' + cell.name + '_skeleton.txt'
+                            fill_skeleton_timing_seq(cell, fname_d_c_s, 'IQ', 'clear', None, 2.5, 0, 0, None)
+
+                            fname_d_c_s = 'skeleton_files/' + cell.name + '/timing/out/rel_clear/dn_c_sn/' + cell.name + '_skeleton.txt'
+                            fill_skeleton_timing_seq(cell, fname_d_c_s, 'IQ', 'clear', None, 0, 2.5, 0, None)
+
+                            fname_d_c_s = 'skeleton_files/' + cell.name + '/timing/out/rel_clear/dn_cn_sn/' + cell.name + '_skeleton.txt'
+                            fill_skeleton_timing_seq(cell, fname_d_c_s, 'IQ', 'clear', None, 0, 0, 0, None)
+                        elif timing['type'] == 'preset':
+                            fname_d_c_r = 'skeleton_files/' + cell.name + '/timing/out/rel_set/d_c_rn/' + cell.name + '_skeleton.txt'
+                            fill_skeleton_timing_seq(cell, fname_d_c_r, 'IQ', 'set', None, 2.5, 2.5, None, 0)
+
+                            fname_d_c_r = 'skeleton_files/' + cell.name + '/timing/out/rel_set/d_cn_rn/' + cell.name + '_skeleton.txt'
+                            fill_skeleton_timing_seq(cell, fname_d_c_r, 'IQ', 'set', None, 2.5, 0, None, 0)
+
+                            fname_d_c_r = 'skeleton_files/' + cell.name + '/timing/out/rel_set/dn_c_rn/' + cell.name + '_skeleton.txt'
+                            fill_skeleton_timing_seq(cell, fname_d_c_r, 'IQ', 'set', None, 0, 2.5, None, 0)
+
+                            fname_d_c_r = 'skeleton_files/' + cell.name + '/timing/out/rel_set/dn_cn_rn/' + cell.name + '_skeleton.txt'
+                            fill_skeleton_timing_seq(cell, fname_d_c_r, 'IQ', 'set', None, 0, 0, None, 0)
+                elif pin['function'] == 'IQN':
+                    for timing in pin['timing']:
+                        if timing['type'] == 'rising_edge':
+                            fname_pos_input = 'skeleton_files/' + cell.name + '/timing/outn/rel_clock/pos/' + cell.name + '_skeleton.txt'
+                            fname_neg_input = 'skeleton_files/' + cell.name + '/timing/outn/rel_clock/zero/' + cell.name + '_skeleton.txt'
+                            fill_skeleton_timing_seq(cell, fname_pos_input, 'IQN', 'clock', 'pos', None, None, None, None)
+                            fill_skeleton_timing_seq(cell, fname_neg_input, 'IQN', 'clock', 'zero', None, None, None, None)
+                        elif timing['type'] == 'clear':
+
+                            fname_d_c_s = 'skeleton_files/' + cell.name + '/timing/outn/rel_clear/d_c_sn/' + cell.name + '_skeleton.txt'
+                            fill_skeleton_timing_seq(cell, fname_d_c_s, 'IQN', 'clear', None, 2.5, 2.5, 0, None)
+
+                            fname_d_c_s = 'skeleton_files/' + cell.name + '/timing/outn/rel_clear/d_cn_sn/' + cell.name + '_skeleton.txt'
+                            fill_skeleton_timing_seq(cell, fname_d_c_s, 'IQN', 'clear', None, 2.5, 0, 0, None)
+
+                            fname_d_c_s = 'skeleton_files/' + cell.name + '/timing/outn/rel_clear/dn_c_sn/' + cell.name + '_skeleton.txt'
+                            fill_skeleton_timing_seq(cell, fname_d_c_s, 'IQN', 'clear', None, 0, 2.5, 0, None)
+
+                            fname_d_c_s = 'skeleton_files/' + cell.name + '/timing/outn/rel_clear/dn_cn_sn/' + cell.name + '_skeleton.txt'
+                            fill_skeleton_timing_seq(cell, fname_d_c_s, 'IQN', 'clear', None, 0, 0, 0, None)
+                        elif timing['type'] == 'preset':
+                            fname_d_c_r = 'skeleton_files/' + cell.name + '/timing/outn/rel_set/d_c_rn/' + cell.name + '_skeleton.txt'
+                            fill_skeleton_timing_seq(cell, fname_d_c_r, 'IQN', 'set', None, 2.5, 2.5, None, 0)
+
+                            fname_d_c_r = 'skeleton_files/' + cell.name + '/timing/outn/rel_set/d_cn_rn/' + cell.name + '_skeleton.txt'
+                            fill_skeleton_timing_seq(cell, fname_d_c_r, 'IQN', 'set', None, 2.5, 0, None, 0)
+
+                            fname_d_c_r = 'skeleton_files/' + cell.name + '/timing/outn/rel_set/dn_c_rn/' + cell.name + '_skeleton.txt'
+                            fill_skeleton_timing_seq(cell, fname_d_c_r, 'IQN', 'set', None, 0, 2.5, None, 0)
+
+                            fname_d_c_r = 'skeleton_files/' + cell.name + '/timing/outn/rel_set/dn_cn_rn/' + cell.name + '_skeleton.txt'
+                            fill_skeleton_timing_seq(cell, fname_d_c_r, 'IQN', 'set', None, 0, 0, None, 0)
 
 
 def run_setup(cell):
@@ -964,204 +1172,205 @@ def run_removal(cell):
                 f_meas_out.close()
                 break
 
+def run_timing(cell):
+    if cell.type== 'sequential':
+        tim_dirs = os.listdir("measure_files/"+cell.name+"/timing/")
+        for out_dir in tim_dirs:
+            for rel_in_dir in os.listdir("measure_files/"+cell.name+"/timing/"+out_dir):
+                for inp_val_dir in os.listdir("measure_files/"+cell.name+"/timing/"+out_dir+'/'+rel_in_dir):
+                    for spice_file in os.listdir("measure_files/"+cell.name+"/timing/"+out_dir+'/'+rel_in_dir+'/'+inp_val_dir):
+                        os.system("ngspice " + "measure_files/"+cell.name+"/timing/"+out_dir+'/'+rel_in_dir+'/'+inp_val_dir+'/'+spice_file+" >suppress.txt")
+
 
 config_path = "/home/znikolaos-g/VLSI/Project/Part2/config.json"
 cells = parse_config(config_path)
 
-try:
-    delete('skeleton_files')
-    delete('measure_files')
-    delete('out_measure_files')
-except ValueError:
-    print('Running for the first time!')
-    pass
 
-try:
-    os.mkdir('skeleton_files')
-    os.mkdir('measure_files')
-    os.mkdir('out_measure_files')
-except FileExistsError:
-    print('Warning: some files already exist!\n')
-    pass
-
-for cell in cells:
+if len(sys.argv) != 2:
+    print('Error: Invalid number of arguments. 2 arguments must be provided')
+    exit(-1)
+elif sys.argv[1] == '--run':
+    print('Making measure files...')
     try:
-        os.mkdir('skeleton_files/'+cell.name)
-        os.mkdir('measure_files/' + cell.name)
-        os.mkdir('out_measure_files/' + cell.name)
+        delete('skeleton_files')
+        delete('measure_files')
+        delete('out_measure_files')
+    except ValueError:
+        print('Running for the first time!')
+        pass
+
+    try:
+        os.mkdir('skeleton_files')
+        os.mkdir('measure_files')
+        os.mkdir('out_measure_files')
     except FileExistsError:
         print('Warning: some files already exist!\n')
         pass
 
-    if cell.type == 'sequential':
+    for cell in cells:
         try:
-            os.mkdir('skeleton_files/' + cell.name + '/setup')
-            os.mkdir('skeleton_files/' + cell.name + '/setup/rise')
-            os.mkdir('skeleton_files/' + cell.name + '/setup/fall')
-            os.mkdir('skeleton_files/' + cell.name + '/hold')
-            os.mkdir('skeleton_files/' + cell.name + '/hold/rise')
-            os.mkdir('skeleton_files/' + cell.name + '/hold/fall')
-            os.mkdir('skeleton_files/' + cell.name + '/recovery')
-            os.mkdir('skeleton_files/' + cell.name + '/recovery/set')
-            os.mkdir('skeleton_files/' + cell.name + '/recovery/clear')
-            os.mkdir('skeleton_files/' + cell.name + '/removal')
-            os.mkdir('skeleton_files/' + cell.name + '/removal/set')
-            os.mkdir('skeleton_files/' + cell.name + '/removal/clear')
-            os.mkdir('skeleton_files/' + cell.name + '/timing')
-            os.mkdir('skeleton_files/' + cell.name + '/timing/out')
-            os.mkdir('skeleton_files/' + cell.name + '/timing/out/rel_clock')
-            os.mkdir('skeleton_files/' + cell.name + '/timing/out/rel_clock/pos')
-            os.mkdir('skeleton_files/' + cell.name + '/timing/out/rel_clock/zero')
-            os.mkdir('skeleton_files/' + cell.name + '/timing/out/rel_set')
-            os.mkdir('skeleton_files/' + cell.name + '/timing/out/rel_set/dn_cn_rn')
-            os.mkdir('skeleton_files/' + cell.name + '/timing/out/rel_set/dn_c_rn')
-            os.mkdir('skeleton_files/' + cell.name + '/timing/out/rel_set/d_cn_rn')
-            os.mkdir('skeleton_files/' + cell.name + '/timing/out/rel_set/d_c_rn')
-            os.mkdir('skeleton_files/' + cell.name + '/timing/out/rel_clear')
-            os.mkdir('skeleton_files/' + cell.name + '/timing/out/rel_clear/dn_cn_rn')
-            os.mkdir('skeleton_files/' + cell.name + '/timing/out/rel_clear/dn_cn_r')
-            os.mkdir('skeleton_files/' + cell.name + '/timing/out/rel_clear/dn_c_rn')
-            os.mkdir('skeleton_files/' + cell.name + '/timing/out/rel_clear/dn_c_r')
-            os.mkdir('skeleton_files/' + cell.name + '/timing/out/rel_clear/d_cn_rn')
-            os.mkdir('skeleton_files/' + cell.name + '/timing/out/rel_clear/d_cn_r')
-            os.mkdir('skeleton_files/' + cell.name + '/timing/out/rel_clear/d_c_rn')
-            os.mkdir('skeleton_files/' + cell.name + '/timing/out/rel_clear/d_c_r')
-            os.mkdir('skeleton_files/' + cell.name + '/timing/outn')
-            os.mkdir('skeleton_files/' + cell.name + '/timing/outn/rel_clock')
-            os.mkdir('skeleton_files/' + cell.name + '/timing/outn/rel_clock/pos')
-            os.mkdir('skeleton_files/' + cell.name + '/timing/outn/rel_clock/zero')
-            os.mkdir('skeleton_files/' + cell.name + '/timing/outn/rel_set')
-            os.mkdir('skeleton_files/' + cell.name + '/timing/outn/rel_set/dn_cn_rn')
-            os.mkdir('skeleton_files/' + cell.name + '/timing/outn/rel_set/dn_c_rn')
-            os.mkdir('skeleton_files/' + cell.name + '/timing/outn/rel_set/d_cn_rn')
-            os.mkdir('skeleton_files/' + cell.name + '/timing/outn/rel_set/d_c_rn')
-            os.mkdir('skeleton_files/' + cell.name + '/timing/outn/rel_clear')
-            os.mkdir('skeleton_files/' + cell.name + '/timing/outn/rel_clear/dn_cn_rn')
-            os.mkdir('skeleton_files/' + cell.name + '/timing/outn/rel_clear/dn_cn_r')
-            os.mkdir('skeleton_files/' + cell.name + '/timing/outn/rel_clear/dn_c_rn')
-            os.mkdir('skeleton_files/' + cell.name + '/timing/outn/rel_clear/dn_c_r')
-            os.mkdir('skeleton_files/' + cell.name + '/timing/outn/rel_clear/d_cn_rn')
-            os.mkdir('skeleton_files/' + cell.name + '/timing/outn/rel_clear/d_cn_r')
-            os.mkdir('skeleton_files/' + cell.name + '/timing/outn/rel_clear/d_c_rn')
-            os.mkdir('skeleton_files/' + cell.name + '/timing/outn/rel_clear/d_c_r')
-
-            os.mkdir('measure_files/' + cell.name + '/setup')
-            os.mkdir('measure_files/' + cell.name + '/setup/rise')
-            os.mkdir('measure_files/' + cell.name + '/setup/fall')
-            os.mkdir('measure_files/' + cell.name + '/hold')
-            os.mkdir('measure_files/' + cell.name + '/hold/rise')
-            os.mkdir('measure_files/' + cell.name + '/hold/fall')
-            os.mkdir('measure_files/' + cell.name + '/recovery')
-            os.mkdir('measure_files/' + cell.name + '/recovery/set')
-            os.mkdir('measure_files/' + cell.name + '/recovery/clear')
-            os.mkdir('measure_files/' + cell.name + '/removal')
-            os.mkdir('measure_files/' + cell.name + '/removal/set')
-            os.mkdir('measure_files/' + cell.name + '/removal/clear')
-            os.mkdir('measure_files/' + cell.name + '/timing')
-            os.mkdir('measure_files/' + cell.name + '/timing/out')
-            os.mkdir('measure_files/' + cell.name + '/timing/out/rel_clock')
-            os.mkdir('measure_files/' + cell.name + '/timing/out/rel_clock/pos')
-            os.mkdir('measure_files/' + cell.name + '/timing/out/rel_clock/zero')
-            os.mkdir('measure_files/' + cell.name + '/timing/out/rel_set')
-            os.mkdir('measure_files/' + cell.name + '/timing/out/rel_set/dn_cn_rn')
-            os.mkdir('measure_files/' + cell.name + '/timing/out/rel_set/dn_c_rn')
-            os.mkdir('measure_files/' + cell.name + '/timing/out/rel_set/d_cn_rn')
-            os.mkdir('measure_files/' + cell.name + '/timing/out/rel_set/d_c_rn')
-            os.mkdir('measure_files/' + cell.name + '/timing/out/rel_clear')
-            os.mkdir('measure_files/' + cell.name + '/timing/out/rel_clear/dn_cn_rn')
-            os.mkdir('measure_files/' + cell.name + '/timing/out/rel_clear/dn_cn_r')
-            os.mkdir('measure_files/' + cell.name + '/timing/out/rel_clear/dn_c_rn')
-            os.mkdir('measure_files/' + cell.name + '/timing/out/rel_clear/dn_c_r')
-            os.mkdir('measure_files/' + cell.name + '/timing/out/rel_clear/d_cn_rn')
-            os.mkdir('measure_files/' + cell.name + '/timing/out/rel_clear/d_cn_r')
-            os.mkdir('measure_files/' + cell.name + '/timing/out/rel_clear/d_c_rn')
-            os.mkdir('measure_files/' + cell.name + '/timing/out/rel_clear/d_c_r')
-            os.mkdir('measure_files/' + cell.name + '/timing/outn')
-            os.mkdir('measure_files/' + cell.name + '/timing/outn/rel_clock')
-            os.mkdir('measure_files/' + cell.name + '/timing/outn/rel_clock/pos')
-            os.mkdir('measure_files/' + cell.name + '/timing/outn/rel_clock/zero')
-            os.mkdir('measure_files/' + cell.name + '/timing/outn/rel_set')
-            os.mkdir('measure_files/' + cell.name + '/timing/outn/rel_set/dn_cn_rn')
-            os.mkdir('measure_files/' + cell.name + '/timing/outn/rel_set/dn_c_rn')
-            os.mkdir('measure_files/' + cell.name + '/timing/outn/rel_set/d_cn_rn')
-            os.mkdir('measure_files/' + cell.name + '/timing/outn/rel_set/d_c_rn')
-            os.mkdir('measure_files/' + cell.name + '/timing/outn/rel_clear')
-            os.mkdir('measure_files/' + cell.name + '/timing/outn/rel_clear/dn_cn_rn')
-            os.mkdir('measure_files/' + cell.name + '/timing/outn/rel_clear/dn_cn_r')
-            os.mkdir('measure_files/' + cell.name + '/timing/outn/rel_clear/dn_c_rn')
-            os.mkdir('measure_files/' + cell.name + '/timing/outn/rel_clear/dn_c_r')
-            os.mkdir('measure_files/' + cell.name + '/timing/outn/rel_clear/d_cn_rn')
-            os.mkdir('measure_files/' + cell.name + '/timing/outn/rel_clear/d_cn_r')
-            os.mkdir('measure_files/' + cell.name + '/timing/outn/rel_clear/d_c_rn')
-            os.mkdir('measure_files/' + cell.name + '/timing/outn/rel_clear/d_c_r')
-
-            os.mkdir('out_measure_files/' + cell.name + '/setup')
-            os.mkdir('out_measure_files/' + cell.name + '/setup/rise')
-            os.mkdir('out_measure_files/' + cell.name + '/setup/fall')
-            os.mkdir('out_measure_files/' + cell.name + '/hold')
-            os.mkdir('out_measure_files/' + cell.name + '/hold/rise')
-            os.mkdir('out_measure_files/' + cell.name + '/hold/fall')
-            os.mkdir('out_measure_files/' + cell.name + '/recovery')
-            os.mkdir('out_measure_files/' + cell.name + '/recovery/set')
-            os.mkdir('out_measure_files/' + cell.name + '/recovery/clear')
-            os.mkdir('out_measure_files/' + cell.name + '/removal')
-            os.mkdir('out_measure_files/' + cell.name + '/removal/set')
-            os.mkdir('out_measure_files/' + cell.name + '/removal/clear')
-            os.mkdir('out_measure_files/' + cell.name + '/timing')
-            os.mkdir('out_measure_files/' + cell.name + '/timing/out')
-            os.mkdir('out_measure_files/' + cell.name + '/timing/out/rel_clock')
-            os.mkdir('out_measure_files/' + cell.name + '/timing/out/rel_clock/pos')
-            os.mkdir('out_measure_files/' + cell.name + '/timing/out/rel_clock/zero')
-            os.mkdir('out_measure_files/' + cell.name + '/timing/out/rel_set')
-            os.mkdir('out_measure_files/' + cell.name + '/timing/out/rel_set/dn_cn_rn')
-            os.mkdir('out_measure_files/' + cell.name + '/timing/out/rel_set/dn_c_rn')
-            os.mkdir('out_measure_files/' + cell.name + '/timing/out/rel_set/d_cn_rn')
-            os.mkdir('out_measure_files/' + cell.name + '/timing/out/rel_set/d_c_rn')
-            os.mkdir('out_measure_files/' + cell.name + '/timing/out/rel_clear')
-            os.mkdir('out_measure_files/' + cell.name + '/timing/out/rel_clear/dn_cn_rn')
-            os.mkdir('out_measure_files/' + cell.name + '/timing/out/rel_clear/dn_cn_r')
-            os.mkdir('out_measure_files/' + cell.name + '/timing/out/rel_clear/dn_c_rn')
-            os.mkdir('out_measure_files/' + cell.name + '/timing/out/rel_clear/dn_c_r')
-            os.mkdir('out_measure_files/' + cell.name + '/timing/out/rel_clear/d_cn_rn')
-            os.mkdir('out_measure_files/' + cell.name + '/timing/out/rel_clear/d_cn_r')
-            os.mkdir('out_measure_files/' + cell.name + '/timing/out/rel_clear/d_c_rn')
-            os.mkdir('out_measure_files/' + cell.name + '/timing/out/rel_clear/d_c_r')
-            os.mkdir('out_measure_files/' + cell.name + '/timing/outn')
-            os.mkdir('out_measure_files/' + cell.name + '/timing/outn/rel_clock')
-            os.mkdir('out_measure_files/' + cell.name + '/timing/outn/rel_clock/pos')
-            os.mkdir('out_measure_files/' + cell.name + '/timing/outn/rel_clock/zero')
-            os.mkdir('out_measure_files/' + cell.name + '/timing/outn/rel_set')
-            os.mkdir('out_measure_files/' + cell.name + '/timing/outn/rel_set/dn_cn_rn')
-            os.mkdir('out_measure_files/' + cell.name + '/timing/outn/rel_set/dn_c_rn')
-            os.mkdir('out_measure_files/' + cell.name + '/timing/outn/rel_set/d_cn_rn')
-            os.mkdir('out_measure_files/' + cell.name + '/timing/outn/rel_set/d_c_rn')
-            os.mkdir('out_measure_files/' + cell.name + '/timing/outn/rel_clear')
-            os.mkdir('out_measure_files/' + cell.name + '/timing/outn/rel_clear/dn_cn_rn')
-            os.mkdir('out_measure_files/' + cell.name + '/timing/outn/rel_clear/dn_cn_r')
-            os.mkdir('out_measure_files/' + cell.name + '/timing/outn/rel_clear/dn_c_rn')
-            os.mkdir('out_measure_files/' + cell.name + '/timing/outn/rel_clear/dn_c_r')
-            os.mkdir('out_measure_files/' + cell.name + '/timing/outn/rel_clear/d_cn_rn')
-            os.mkdir('out_measure_files/' + cell.name + '/timing/outn/rel_clear/d_cn_r')
-            os.mkdir('out_measure_files/' + cell.name + '/timing/outn/rel_clear/d_c_rn')
-            os.mkdir('out_measure_files/' + cell.name + '/timing/outn/rel_clear/d_c_r')
+            os.mkdir('skeleton_files/'+cell.name)
+            os.mkdir('measure_files/' + cell.name)
+            os.mkdir('out_measure_files/' + cell.name)
         except FileExistsError:
             print('Warning: some files already exist!\n')
             pass
 
+        if cell.type == 'sequential':
+            try:
+                os.mkdir('skeleton_files/' + cell.name + '/setup')
+                os.mkdir('skeleton_files/' + cell.name + '/setup/rise')
+                os.mkdir('skeleton_files/' + cell.name + '/setup/fall')
+                os.mkdir('skeleton_files/' + cell.name + '/hold')
+                os.mkdir('skeleton_files/' + cell.name + '/hold/rise')
+                os.mkdir('skeleton_files/' + cell.name + '/hold/fall')
+                os.mkdir('skeleton_files/' + cell.name + '/recovery')
+                os.mkdir('skeleton_files/' + cell.name + '/recovery/set')
+                os.mkdir('skeleton_files/' + cell.name + '/recovery/clear')
+                os.mkdir('skeleton_files/' + cell.name + '/removal')
+                os.mkdir('skeleton_files/' + cell.name + '/removal/set')
+                os.mkdir('skeleton_files/' + cell.name + '/removal/clear')
+                os.mkdir('skeleton_files/' + cell.name + '/timing')
+                os.mkdir('skeleton_files/' + cell.name + '/timing/out')
+                os.mkdir('skeleton_files/' + cell.name + '/timing/out/rel_clock')
+                os.mkdir('skeleton_files/' + cell.name + '/timing/out/rel_clock/pos')
+                os.mkdir('skeleton_files/' + cell.name + '/timing/out/rel_clock/zero')
+                os.mkdir('skeleton_files/' + cell.name + '/timing/out/rel_set')
+                os.mkdir('skeleton_files/' + cell.name + '/timing/out/rel_set/dn_cn_rn')
+                os.mkdir('skeleton_files/' + cell.name + '/timing/out/rel_set/dn_c_rn')
+                os.mkdir('skeleton_files/' + cell.name + '/timing/out/rel_set/d_cn_rn')
+                os.mkdir('skeleton_files/' + cell.name + '/timing/out/rel_set/d_c_rn')
+                os.mkdir('skeleton_files/' + cell.name + '/timing/out/rel_clear')
+                os.mkdir('skeleton_files/' + cell.name + '/timing/out/rel_clear/dn_cn_sn')
+                os.mkdir('skeleton_files/' + cell.name + '/timing/out/rel_clear/dn_c_sn')
+                os.mkdir('skeleton_files/' + cell.name + '/timing/out/rel_clear/d_cn_sn')
+                os.mkdir('skeleton_files/' + cell.name + '/timing/out/rel_clear/d_c_sn')
+                os.mkdir('skeleton_files/' + cell.name + '/timing/outn')
+                os.mkdir('skeleton_files/' + cell.name + '/timing/outn/rel_clock')
+                os.mkdir('skeleton_files/' + cell.name + '/timing/outn/rel_clock/pos')
+                os.mkdir('skeleton_files/' + cell.name + '/timing/outn/rel_clock/zero')
+                os.mkdir('skeleton_files/' + cell.name + '/timing/outn/rel_set')
+                os.mkdir('skeleton_files/' + cell.name + '/timing/outn/rel_set/dn_cn_rn')
+                os.mkdir('skeleton_files/' + cell.name + '/timing/outn/rel_set/dn_c_rn')
+                os.mkdir('skeleton_files/' + cell.name + '/timing/outn/rel_set/d_cn_rn')
+                os.mkdir('skeleton_files/' + cell.name + '/timing/outn/rel_set/d_c_rn')
+                os.mkdir('skeleton_files/' + cell.name + '/timing/outn/rel_clear')
+                os.mkdir('skeleton_files/' + cell.name + '/timing/outn/rel_clear/dn_cn_sn')
+                os.mkdir('skeleton_files/' + cell.name + '/timing/outn/rel_clear/dn_c_sn')
+                os.mkdir('skeleton_files/' + cell.name + '/timing/outn/rel_clear/d_cn_sn')
+                os.mkdir('skeleton_files/' + cell.name + '/timing/outn/rel_clear/d_c_sn')
 
-    make_skeleton_files(cell)
-    make_measure_files(cell)
+                os.mkdir('measure_files/' + cell.name + '/setup')
+                os.mkdir('measure_files/' + cell.name + '/setup/rise')
+                os.mkdir('measure_files/' + cell.name + '/setup/fall')
+                os.mkdir('measure_files/' + cell.name + '/hold')
+                os.mkdir('measure_files/' + cell.name + '/hold/rise')
+                os.mkdir('measure_files/' + cell.name + '/hold/fall')
+                os.mkdir('measure_files/' + cell.name + '/recovery')
+                os.mkdir('measure_files/' + cell.name + '/recovery/set')
+                os.mkdir('measure_files/' + cell.name + '/recovery/clear')
+                os.mkdir('measure_files/' + cell.name + '/removal')
+                os.mkdir('measure_files/' + cell.name + '/removal/set')
+                os.mkdir('measure_files/' + cell.name + '/removal/clear')
+                os.mkdir('measure_files/' + cell.name + '/timing')
+                os.mkdir('measure_files/' + cell.name + '/timing/out')
+                os.mkdir('measure_files/' + cell.name + '/timing/out/rel_clock')
+                os.mkdir('measure_files/' + cell.name + '/timing/out/rel_clock/pos')
+                os.mkdir('measure_files/' + cell.name + '/timing/out/rel_clock/zero')
+                os.mkdir('measure_files/' + cell.name + '/timing/out/rel_set')
+                os.mkdir('measure_files/' + cell.name + '/timing/out/rel_set/dn_cn_rn')
+                os.mkdir('measure_files/' + cell.name + '/timing/out/rel_set/dn_c_rn')
+                os.mkdir('measure_files/' + cell.name + '/timing/out/rel_set/d_cn_rn')
+                os.mkdir('measure_files/' + cell.name + '/timing/out/rel_set/d_c_rn')
+                os.mkdir('measure_files/' + cell.name + '/timing/out/rel_clear')
+                os.mkdir('measure_files/' + cell.name + '/timing/out/rel_clear/dn_cn_sn')
+                os.mkdir('measure_files/' + cell.name + '/timing/out/rel_clear/dn_c_sn')
+                os.mkdir('measure_files/' + cell.name + '/timing/out/rel_clear/d_cn_sn')
+                os.mkdir('measure_files/' + cell.name + '/timing/out/rel_clear/d_c_sn')
+                os.mkdir('measure_files/' + cell.name + '/timing/outn')
+                os.mkdir('measure_files/' + cell.name + '/timing/outn/rel_clock')
+                os.mkdir('measure_files/' + cell.name + '/timing/outn/rel_clock/pos')
+                os.mkdir('measure_files/' + cell.name + '/timing/outn/rel_clock/zero')
+                os.mkdir('measure_files/' + cell.name + '/timing/outn/rel_set')
+                os.mkdir('measure_files/' + cell.name + '/timing/outn/rel_set/dn_cn_rn')
+                os.mkdir('measure_files/' + cell.name + '/timing/outn/rel_set/dn_c_rn')
+                os.mkdir('measure_files/' + cell.name + '/timing/outn/rel_set/d_cn_rn')
+                os.mkdir('measure_files/' + cell.name + '/timing/outn/rel_set/d_c_rn')
+                os.mkdir('measure_files/' + cell.name + '/timing/outn/rel_clear')
+                os.mkdir('measure_files/' + cell.name + '/timing/outn/rel_clear/dn_cn_sn')
+                os.mkdir('measure_files/' + cell.name + '/timing/outn/rel_clear/dn_c_sn')
+                os.mkdir('measure_files/' + cell.name + '/timing/outn/rel_clear/d_cn_sn')
+                os.mkdir('measure_files/' + cell.name + '/timing/outn/rel_clear/d_c_sn')
+
+                os.mkdir('out_measure_files/' + cell.name + '/setup')
+                os.mkdir('out_measure_files/' + cell.name + '/setup/rise')
+                os.mkdir('out_measure_files/' + cell.name + '/setup/fall')
+                os.mkdir('out_measure_files/' + cell.name + '/hold')
+                os.mkdir('out_measure_files/' + cell.name + '/hold/rise')
+                os.mkdir('out_measure_files/' + cell.name + '/hold/fall')
+                os.mkdir('out_measure_files/' + cell.name + '/recovery')
+                os.mkdir('out_measure_files/' + cell.name + '/recovery/set')
+                os.mkdir('out_measure_files/' + cell.name + '/recovery/clear')
+                os.mkdir('out_measure_files/' + cell.name + '/removal')
+                os.mkdir('out_measure_files/' + cell.name + '/removal/set')
+                os.mkdir('out_measure_files/' + cell.name + '/removal/clear')
+                os.mkdir('out_measure_files/' + cell.name + '/timing')
+                os.mkdir('out_measure_files/' + cell.name + '/timing/out')
+                os.mkdir('out_measure_files/' + cell.name + '/timing/out/rel_clock')
+                os.mkdir('out_measure_files/' + cell.name + '/timing/out/rel_clock/pos')
+                os.mkdir('out_measure_files/' + cell.name + '/timing/out/rel_clock/zero')
+                os.mkdir('out_measure_files/' + cell.name + '/timing/out/rel_set')
+                os.mkdir('out_measure_files/' + cell.name + '/timing/out/rel_set/dn_cn_rn')
+                os.mkdir('out_measure_files/' + cell.name + '/timing/out/rel_set/dn_c_rn')
+                os.mkdir('out_measure_files/' + cell.name + '/timing/out/rel_set/d_cn_rn')
+                os.mkdir('out_measure_files/' + cell.name + '/timing/out/rel_set/d_c_rn')
+                os.mkdir('out_measure_files/' + cell.name + '/timing/out/rel_clear')
+                os.mkdir('out_measure_files/' + cell.name + '/timing/out/rel_clear/dn_cn_sn')
+                os.mkdir('out_measure_files/' + cell.name + '/timing/out/rel_clear/dn_c_sn')
+                os.mkdir('out_measure_files/' + cell.name + '/timing/out/rel_clear/d_cn_sn')
+                os.mkdir('out_measure_files/' + cell.name + '/timing/out/rel_clear/d_c_sn')
+                os.mkdir('out_measure_files/' + cell.name + '/timing/outn')
+                os.mkdir('out_measure_files/' + cell.name + '/timing/outn/rel_clock')
+                os.mkdir('out_measure_files/' + cell.name + '/timing/outn/rel_clock/pos')
+                os.mkdir('out_measure_files/' + cell.name + '/timing/outn/rel_clock/zero')
+                os.mkdir('out_measure_files/' + cell.name + '/timing/outn/rel_set')
+                os.mkdir('out_measure_files/' + cell.name + '/timing/outn/rel_set/dn_cn_rn')
+                os.mkdir('out_measure_files/' + cell.name + '/timing/outn/rel_set/dn_c_rn')
+                os.mkdir('out_measure_files/' + cell.name + '/timing/outn/rel_set/d_cn_rn')
+                os.mkdir('out_measure_files/' + cell.name + '/timing/outn/rel_set/d_c_rn')
+                os.mkdir('out_measure_files/' + cell.name + '/timing/outn/rel_clear')
+                os.mkdir('out_measure_files/' + cell.name + '/timing/outn/rel_clear/dn_cn_sn')
+                os.mkdir('out_measure_files/' + cell.name + '/timing/outn/rel_clear/dn_c_sn')
+                os.mkdir('out_measure_files/' + cell.name + '/timing/outn/rel_clear/d_cn_sn')
+                os.mkdir('out_measure_files/' + cell.name + '/timing/outn/rel_clear/d_c_sn')
+            except FileExistsError:
+                print('Warning: some files already exist!\n')
+                pass
 
 
-for cell in cells:
-    if cell.type == 'sequential':
-        #run_setup(cell)
-        #run_hold(cell)
-        #run_recovery(cell)
-        #run_removal(cell)
-        print("hi")
+        make_skeleton_files(cell)
+        make_measure_files(cell)
 
+    print('Running ngspice...')
+    for cell in cells:
+        if cell.type == 'sequential':
+            #run_setup(cell)
+            #run_hold(cell)
+            #run_recovery(cell)
+            #run_removal(cell)
+            #run_timing(cell)
+            print("Hi")
 
+    print('Done!')
+elif sys.argv[1] == '--make':
+    print('Making library...')
+    print('Done')
+elif sys.argv[1] == '--help':
+    print('\n-----------------------------Valid Arguments----------------------------------------')
+    print('--run: constructs skeleton/measure files based on config file and runs ngspice.')
+    print('--make: makes library based on the ouput measure files made with --run argument.\n')
+else:
+    print('Error, invalid argument: Run with --help to see the valid arguments')
 #spice_dirs = os.listdir("measure_files/")
 
 #for spice_dir in spice_dirs:
