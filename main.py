@@ -895,7 +895,7 @@ def make_skeleton_files(cell):
 
 def run_setup(cell):
     max_iter = 10000
-    step = 0.1
+    step = 0.05
     tc_start = 20
     td_init = 6
 
@@ -965,7 +965,7 @@ def run_setup(cell):
 
 def run_hold(cell):
     max_iter = 10000
-    step = -0.1
+    step = -0.05
     tc_start = 20
     td_init = 24
 
@@ -1035,7 +1035,7 @@ def run_hold(cell):
 
 def run_recovery(cell):
     max_iter = 10000
-    step = 0.1
+    step = 0.05
     tc_start = 20
     ta_init = 15
 
@@ -1105,7 +1105,7 @@ def run_recovery(cell):
 
 def run_removal(cell):
     max_iter = 10000
-    step = -0.1
+    step = -0.05
     tc_start = 20
     ta_init = 35
 
@@ -1180,6 +1180,11 @@ def run_timing(cell):
                 for inp_val_dir in os.listdir("measure_files/"+cell.name+"/timing/"+out_dir+'/'+rel_in_dir):
                     for spice_file in os.listdir("measure_files/"+cell.name+"/timing/"+out_dir+'/'+rel_in_dir+'/'+inp_val_dir):
                         os.system("ngspice " + "measure_files/"+cell.name+"/timing/"+out_dir+'/'+rel_in_dir+'/'+inp_val_dir+'/'+spice_file+" >suppress.txt")
+    elif cell.type == 'combinational':
+        tim_dirs = os.listdir("measure_files/" + cell.name+'/')
+        for spice_file in tim_dirs:
+            os.system("ngspice measure_files/"+cell.name+"/"+spice_file+" >suppress.txt")
+
 
 
 config_path = "/home/znikolaos-g/VLSI/Project/Part2/config.json"
@@ -1353,17 +1358,30 @@ elif sys.argv[1] == '--run':
 
     print('Running ngspice...')
     for cell in cells:
+        print('\n---Cell: ' + cell.name+' Type: '+cell.type+'---')
         if cell.type == 'sequential':
-            #run_setup(cell)
-            #run_hold(cell)
-            #run_recovery(cell)
-            #run_removal(cell)
-            #run_timing(cell)
-            print("Hi")
+            print('Measuring setup...')
+            run_setup(cell)
+            print('Measuring hold...')
+            run_hold(cell)
+            print('Measuring recovery...')
+            run_recovery(cell)
+            print('Measuring removal...')
+            run_removal(cell)
+            print('Measuring combinational time...')
+            run_timing(cell)
+        elif cell.type == 'combinational':
+            print('Measuring combinational time...')
+            run_timing(cell)
 
-    print('Done!')
+    print('\nDone!')
 elif sys.argv[1] == '--make':
     print('Making library...')
+
+    if not os.path.isdir('skeleton_files'):
+        print('Error, no prior execution with --run argument!')
+        exit(-1)
+
     print('Done')
 elif sys.argv[1] == '--help':
     print('\n-----------------------------Valid Arguments----------------------------------------')
