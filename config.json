@@ -4,14 +4,17 @@
 		"type": "combinational",
 		"path": "/home/znikolaos-g/VLSI/Project/Part2/xor.spice",
 		"signature": "fxor A B vdd",
+		"drive": "X1",
 		"pins": [
 			{
 				"name": "A",
-				"type": "input"
+				"type": "input",
+				"capacitance": "0.003"
 			},
 			{
 				"name": "B",
-				"type": "input"
+				"type": "input",
+				"capacitance": "0.003"
 			},
 			{
 				"name": "vdd",
@@ -20,6 +23,8 @@
 			{
 				"name": "fxor",
 				"type": "output",
+				"max_capacitance": "0.6064",
+				"function": "(A ^ B)",
 				"timing": [
 					{
 						"related_pin": "A",
@@ -46,14 +51,17 @@
 		"type": "combinational",
 		"path": "/home/znikolaos-g/VLSI/Project/Part2/xnor.spice",
 		"signature": "xnor A B vdd",
+		"drive": "X1",
 		"pins": [
 			{
 				"name": "A",
-				"type": "input"
+				"type": "input",
+				"capacitance": "0.003"
 			},
 			{
 				"name": "B",
-				"type": "input"
+				"type": "input",
+				"capacitance": "0.003"
 			},
 			{
 				"name": "vdd",
@@ -62,6 +70,8 @@
 			{
 				"name": "xnor",
 				"type": "output",
+				"max_capacitance": "0.6064",
+				"function": "!(A ^ B)",
 				"timing": [
 					{
 						"related_pin": "A",
@@ -88,10 +98,12 @@
 		"type": "sequential",
 		"path": "/home/znikolaos-g/VLSI/Project/Part2/dffrs.spice",
 		"signature": "Q Qm D CLK S R Vdd",
+		"drive": "X1",
 		"pins": [
 			{
 				"name": "D",
 				"type": "input",
+				"capacitance": "0.003",
 				"timing": [
 					{
 						"related_pin": "CLK",
@@ -110,6 +122,7 @@
 			{
 				"name": "S",
 				"type": "preset",
+				"capacitance": "0.003",
 				"timing": [
 					{
 						"related_pin": "CLK",
@@ -128,6 +141,7 @@
 			{
 				"name": "R",
 				"type": "clear",
+				"capacitance": "0.003",
 				"timing": [
 					{
 						"related_pin": "CLK",
@@ -145,6 +159,7 @@
 			},
 			{
 				"name": "CLK",
+				"capacitance": "0.003",
 				"type": "clock"
 			},
 			{
@@ -155,6 +170,7 @@
 				"name": "Q",
 				"type": "output",
 				"function": "IQ",
+				"max_capacitance": "0.2128",
 				"timing": [
 					{
 						"related_pin": "CLK",
@@ -183,6 +199,7 @@
 				"name": "Qm",
 				"type": "output",
 				"function": "IQN",
+				"max_capacitance": "0.2128",
 				"timing": [
 					{
 						"related_pin": "CLK",

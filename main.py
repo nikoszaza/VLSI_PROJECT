@@ -34,12 +34,13 @@ def make_test_skeleton(gate, drive, source_file):
 # print(f.read())
 
 class Cell:
-    def __init__(self, name, type, path, signature, pins):
+    def __init__(self, name, type, path, signature, pins, drive='X1'):
         self.name = name
         self.path = path
         self.type = type
         self.signature = signature
         self.pins = pins
+        self.drive = drive
 
 
 def parse_config(config_path):
@@ -47,7 +48,7 @@ def parse_config(config_path):
     data = json.load(f)
     cells = []
     for cell_info in data:
-        cells.append(Cell(cell_info['name'], cell_info['type'], cell_info['path'], cell_info['signature'], cell_info['pins']))
+        cells.append(Cell(cell_info['name'], cell_info['type'], cell_info['path'], cell_info['signature'], cell_info['pins'], cell_info['drive']))
     f.close()
     return cells
 
@@ -1186,6 +1187,87 @@ def run_timing(cell):
             os.system("ngspice measure_files/"+cell.name+"/"+spice_file+" >suppress.txt")
 
 
+def make_library(cells):
+    #header
+    f_library = open("library.txt", 'w')
+    f_library.write('library(ece327Library) {\n')
+    f_library.write('\n  /* Documentation Attributes */\n  date                    		: "Mon 16 Jan 2023, 18:11:58";\n')
+    f_library.write('  revision                		: "revision 1.0";\n')
+    f_library.write('  comment                 		: "ECE327 UTH TEMPLATE LIBERTY";\n')
+    f_library.write('\n  /* General Attributes */\n  delay_model : table_lookup;\n\n')
+    f_library.write('  nom_process     : 1.0;\n  nom_temperature : 125;\n  nom_voltage     : 2.5;\n\n')
+    f_library.write('  time_unit               : \"1ns\";\n')
+    f_library.write('  voltage_unit            : \"1V\";\n  current_unit            : \"1mA\";\n')
+    f_library.write('  pulling_resistance_unit : \"1kohm\";\n  leakage_power_unit      : \"1pW\";\n')
+    f_library.write('  capacitive_load_unit(1, pf);\n')
+    f_library.write('\n  /* Library Description: Default Attributes */\n')
+    f_library.write('  default_output_pin_cap       : 0.0;\n  default_inout_pin_cap        : 1.0;\n  default_input_pin_cap        : 1.0;\n')
+    f_library.write('  default_fanout_load          : 1.0;\n  default_cell_leakage_power   : 0.0;\n  default_max_transition       : 10;\n')
+    f_library.write('\n  in_place_swap_mode : match_footprint;\n\n  /* Library Operating Conditions */\n\n')
+    f_library.write('  operating_conditions(SLOW) {\n\tprocess     :  1.0 ;\n\ttemperature :  125 ;\n\tvoltage     :  2.5 ;\n\ttree_type   : balanced_tree ;\n  }\n')
+    f_library.write('\n  default_operating_conditions : SLOW ;\n\n  /* TLF attributes */\n')
+    f_library.write('  default_leakage_power_density  : 0.0;\n  slew_derate_from_library : 1;\n  slew_lower_threshold_pct_fall  : 30.0;\n')
+    f_library.write('  slew_upper_threshold_pct_fall  : 70.0;\n  slew_lower_threshold_pct_rise  : 30.0;\n  slew_upper_threshold_pct_rise  : 70.0;\n')
+    f_library.write('  input_threshold_pct_fall : 50.0;\n  input_threshold_pct_rise : 50.0;\n  output_threshold_pct_fall   : 50.0;\n  output_threshold_pct_rise   : 50.0;\n')
+    f_library.write('\n  /* Library Look_Up Tables Templates */\n\n')
+    f_library.write('  lu_table_template(Timing_template_6_7) {\n')
+    f_library.write('\tvariable_1 : total_output_net_capacitance;\n\tvariable_2 : input_net_transition;\n\tindex_1 ("0.0017, 0.0062, 0.0232, 0.0865, 0.3221, 1.2");\n\tindex_2 ("0.0042, 0.0307, 0.0768, 0.192, 0.48, 1.2, 3");\n  }\n')
+    f_library.write('\n  lu_table_template(Constraint_5_5) {\n\tvariable_1 : related_pin_transition;\n\tvariable_2 : constrained_pin_transition;\n\t')
+    f_library.write('index_1 ("0.0042, 0.0307, 0.0768, 0.48, 3");\n\tindex_2 ("0.0042, 0.0307, 0.0768, 0.48, 3");\n  }\n')
+
+    #modules/cells
+
+    for cell in cells:
+        f_library.write('\n  /******************************************************************************************\n')
+        f_library.write('   Module          	: ' + cell.name + '\n   Cell Description	:')
+        if cell.type == 'combinational':
+            f_library.write(' Combinational cell ('+cell.name+') with drive strength'+cell.drive+'\n')
+        elif cell.type == 'sequential':
+            f_library.write(' Pos.edge D-Flip-Flop with active low reset, and active low set, and drive strength' + cell.drive + '\n')
+        f_library.write('  *******************************************************************************************/\n')
+        f_library.write('  cell ('+cell.name+') {\n')
+        if cell.type == 'sequential':
+            f_library.write('\tff(\"IQ\",\"IQN\") {\n\t  next_state : \"D\";\n\t  clocked_on : \"CLK\";')
+            f_library.write('\n\t  preset : \"S\";\n\t  clear : \"R\";\n\t}\n')
+        f_library.write('\tarea : 1.0;\n\tpg_pin("VDD") {\n\t  voltage_name : \"VDD\";\n\t  pg_type      : primary_power;\n\t}\n')
+        f_library.write('\tpg_pin("VSS") {\n\t  voltage_name : \"VSS\";\n\t  pg_type      : primary_ground;\n\t}\n\n')
+        for pin in cell.pins:
+            if not pin['type'] == 'power':
+                f_library.write('\tpin(\"'+pin['name']+'\") {\n\t  related_power_pin : "VDD";\n\t  related_ground_pin : "VSS";\n')
+            if pin['type'] == 'clock':
+                f_library.write('\t  clock : true;\n')
+            if pin['type'] == 'input' or pin['type'] == 'preset' or pin['type'] == 'clear' or pin['type'] == 'clock':
+                f_library.write('\t  capacitance : '+pin['capacitance']+';\n\t  direction : input;\n')
+            elif pin['type'] == 'output':
+                f_library.write('\t  max_capacitance : '+pin['max_capacitance']+';\n\t  direction : output;\n\t  function : \"' + pin['function'] +'\";\n')
+            #timing
+            if cell.type == 'combinational':
+                if pin['type'] == 'output':
+                    for timing in pin['timing']:
+                        f_library.write('\n\t  timing() {\n\t\trelated_pin : \"'+timing['related_pin']+'\";\n')
+                        f_library.write('\t\twhen : \"!'+timing['other_pin']+'\"\n\t\tsdf_cond : \"('+timing['other_pin']+' == 1\'b0)\";\n')
+                        if timing['binate_type'] == 'positive 0':
+                            f_library.write('\t\ttiming_sense : positive_unate;\n')
+                        else:
+                            f_library.write('\t\ttiming_sense : negative_unate;\n')
+                        f_library.write('\t  }\n\n')
+
+                        f_library.write('\n\t  timing() {\n\t\trelated_pin : \"' + timing['related_pin'] + '\";\n')
+                        f_library.write('\t\twhen : \"' + timing['other_pin'] + '\"\n\t\tsdf_cond : \"('+timing['other_pin']+' == 1\'b1)\";\n')
+                        if timing['binate_type'] == 'positive 0':
+                            f_library.write('\t\ttiming_sense : negative_unate;\n')
+                        else:
+                            f_library.write('\t\ttiming_sense : positive_unate;\n')
+                        f_library.write('\t  }\n\n')
+            if not pin['type'] == 'power':
+                f_library.write('\t}\n')
+
+        f_library.write('  }\n')
+
+
+
+
+    f_library.write('}\n')
 
 config_path = "/home/znikolaos-g/VLSI/Project/Part2/config.json"
 cells = parse_config(config_path)
@@ -1381,6 +1463,8 @@ elif sys.argv[1] == '--make':
     if not os.path.isdir('skeleton_files'):
         print('Error, no prior execution with --run argument!')
         exit(-1)
+
+    make_library(cells)
 
     print('Done')
 elif sys.argv[1] == '--help':
