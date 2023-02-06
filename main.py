@@ -1188,7 +1188,7 @@ def run_timing(cell):
 
 
 def get_timing_values_comb(cell_name, is_rising, related_pin, other_pin, other_pin_val):
-    spice_dirs = os.listdir("out_measure_files/"+cell_name+"/")
+    spice_files = os.listdir("out_measure_files/"+cell_name+"/")
     if is_rising:
         subname = 'timing_' + related_pin + '_rising_' + other_pin + '_' + str(other_pin_val)
     else:
@@ -1212,7 +1212,7 @@ def get_timing_values_comb(cell_name, is_rising, related_pin, other_pin, other_p
         '1.2':    {'0.0042': 0., '0.0307': 0., '0.0768': 0., '0.192': 0., '0.48': 0., '1.2': 0., '3.0': 0.},
     }
 
-    for filename in spice_dirs:
+    for filename in spice_files:
         if subname in filename:
             file = open("out_measure_files/"+cell_name+"/"+filename)
             file_data = file.read()
@@ -1247,6 +1247,126 @@ def get_timing_values_comb(cell_name, is_rising, related_pin, other_pin, other_p
             delay_str += '\");\n'
 
     return slew_str, delay_str
+
+
+def get_constraint_values(cell_name, constraint_type, is_rising, pin_type):
+    con_dict = {
+        '0.0042': {'0.0042': 0., '0.0307': 0., '0.0768': 0., '0.48': 0., '3.0': 0.},
+        '0.0307': {'0.0042': 0., '0.0307': 0., '0.0768': 0., '0.48': 0., '3.0': 0.},
+        '0.0768': {'0.0042': 0., '0.0307': 0., '0.0768': 0., '0.48': 0., '3.0': 0.},
+        '0.48': {'0.0042': 0., '0.0307': 0., '0.0768': 0., '0.48': 0., '3.0': 0.},
+        '3.0': {'0.0042': 0., '0.0307': 0., '0.0768': 0., '0.48': 0., '3.0': 0.},
+    }
+
+    if constraint_type == 'setup_rising':
+        if is_rising:
+            spice_files = os.listdir("out_measure_files/"+cell_name+"/setup/rise/")
+            for filename in spice_files:
+                file = open("out_measure_files/"+cell_name+"/setup/rise/"+filename)
+                file_data = file.read()
+                con_val = float(file_data)
+                name_split = filename.split("_")
+                index1 = name_split[-3]
+                index2 = name_split[-2]
+                con_dict[index1][index2] = con_val
+                file.close()
+        else:
+            spice_files = os.listdir("out_measure_files/" + cell_name + "/setup/fall/")
+            for filename in spice_files:
+                file = open("out_measure_files/" + cell_name + "/setup/fall/" + filename)
+                file_data = file.read()
+                con_val = float(file_data)
+                name_split = filename.split("_")
+                index1 = name_split[-3]
+                index2 = name_split[-2]
+                con_dict[index1][index2] = con_val
+                file.close()
+    elif constraint_type == 'hold_rising':
+        if is_rising:
+            spice_files = os.listdir("out_measure_files/"+cell_name+"/hold/rise/")
+            for filename in spice_files:
+                file = open("out_measure_files/"+cell_name+"/hold/rise/"+filename)
+                file_data = file.read()
+                con_val = float(file_data)
+                name_split = filename.split("_")
+                index1 = name_split[-3]
+                index2 = name_split[-2]
+                con_dict[index1][index2] = con_val
+                file.close()
+        else:
+            spice_files = os.listdir("out_measure_files/" + cell_name + "/hold/fall/")
+            for filename in spice_files:
+                file = open("out_measure_files/" + cell_name + "/hold/fall/" + filename)
+                file_data = file.read()
+                con_val = float(file_data)
+                name_split = filename.split("_")
+                index1 = name_split[-3]
+                index2 = name_split[-2]
+                con_dict[index1][index2] = con_val
+                file.close()
+    elif constraint_type == 'recovery_rising':
+        if pin_type == 'preset':
+            spice_files = os.listdir("out_measure_files/" + cell_name + "/recovery/set/")
+            for filename in spice_files:
+                file = open("out_measure_files/" + cell_name + "/recovery/set/" + filename)
+                file_data = file.read()
+                con_val = float(file_data)
+                name_split = filename.split("_")
+                index1 = name_split[-3]
+                index2 = name_split[-2]
+                con_dict[index1][index2] = con_val
+                file.close()
+        elif pin_type == 'clear':
+            spice_files = os.listdir("out_measure_files/" + cell_name + "/recovery/clear/")
+            for filename in spice_files:
+                file = open("out_measure_files/" + cell_name + "/recovery/clear/" + filename)
+                file_data = file.read()
+                con_val = float(file_data)
+                name_split = filename.split("_")
+                index1 = name_split[-3]
+                index2 = name_split[-2]
+                con_dict[index1][index2] = con_val
+                file.close()
+    elif constraint_type == 'removal_rising':
+        if pin_type == 'preset':
+            spice_files = os.listdir("out_measure_files/" + cell_name + "/removal/set/")
+            for filename in spice_files:
+                file = open("out_measure_files/" + cell_name + "/removal/set/" + filename)
+                file_data = file.read()
+                con_val = float(file_data)
+                name_split = filename.split("_")
+                index1 = name_split[-3]
+                index2 = name_split[-2]
+                con_dict[index1][index2] = con_val
+                file.close()
+        elif pin_type == 'clear':
+            spice_files = os.listdir("out_measure_files/" + cell_name + "/removal/clear/")
+            for filename in spice_files:
+                file = open("out_measure_files/" + cell_name + "/removal/clear/" + filename)
+                file_data = file.read()
+                con_val = float(file_data)
+                name_split = filename.split("_")
+                index1 = name_split[-3]
+                index2 = name_split[-2]
+                con_dict[index1][index2] = con_val
+                file.close()
+
+    con_str = '\t\t  values (\"'
+    outer_counter = 0
+    for index1 in con_dict:
+        outer_counter += 1
+        inner_counter = 0
+        for index2 in con_dict[index1]:
+            inner_counter += 1
+            con_str += str(round(con_dict[index1][index2], 6))
+            if inner_counter != 5:
+                con_str += ','
+        if outer_counter != 5:
+            con_str += '\", \\\n\t\t          \"'
+        else:
+            con_str += '\");\n'
+
+    return con_str
 
 def make_library(cells):
     #header
@@ -1394,8 +1514,53 @@ def make_library(cells):
                         f_library.write('\t\t  index_2 (\"0.0042, 0.0307, 0.0768, 0.192, 0.48, 1.2, 3\");\n')
                         f_library.write(slew_str)
                         f_library.write('\t\t}\n')
-                        
+
                         f_library.write('\t  }\n\n')
+            elif cell.type == 'sequential':
+                if pin['type'] == 'input':
+                    # setup/hold or recovery/removal
+                    for timing in pin['timing']:
+                        f_library.write('\n\t  timing() {\n\t\trelated_pin : \"' + timing['related_pin'] + '\";\n')
+                        f_library.write('\t\ttiming_type : '+timing['type']+';\n\t\twhen : \"!R & !S\";\n')
+                        f_library.write('\t\tsdf_cond : \"R_AND_S === 1\'b0\";\n')
+
+                        # fall constraint
+                        con_str = get_constraint_values(cell.name, timing['type'], False, pin['type'])
+                        f_library.write('\t\tfall_constraint(Constraint_5_5) {\n')
+                        f_library.write('\t\t  index_1(\""0.0042, 0.0307, 0.0768, 0.48, 3\")\n')
+                        f_library.write('\t\t  index_2(\""0.0042, 0.0307, 0.0768, 0.48, 3\")\n')
+                        f_library.write(con_str)
+                        f_library.write('\t\t}\n')
+
+                        # rise constraint
+                        con_str = get_constraint_values(cell.name, timing['type'], True, pin['type'])
+                        f_library.write('\t\trise_constraint(Constraint_5_5) {\n')
+                        f_library.write('\t\t  index_1(\"0.0042, 0.0307, 0.0768, 0.48, 3\")\n')
+                        f_library.write('\t\t  index_2(\"0.0042, 0.0307, 0.0768, 0.48, 3\")\n')
+                        f_library.write(con_str)
+                        f_library.write('\t\t}\n')
+                        f_library.write('\t  }\n')
+                elif pin['type'] == 'preset' or pin['type'] == 'clear':
+                    for timing in pin['timing']:
+                        f_library.write('\n\t  timing() {\n\t\trelated_pin : \"' + timing['related_pin'] + '\";\n')
+                        if pin['type'] == 'preset':
+                            f_library.write('\t\ttiming_type : ' + timing['type'] + ';\n\t\twhen : \"!R\";\n')
+                            f_library.write('\t\tsdf_cond : \"R === 1\'b0\";\n')
+                        else:
+                            f_library.write('\t\ttiming_type : ' + timing['type'] + ';\n\t\twhen : \"!S\";\n')
+                            f_library.write('\t\tsdf_cond : \"S === 1\'b0\";\n')
+
+                        con_str = get_constraint_values(cell.name, timing['type'], None, pin['type'])
+                        f_library.write('\t\tfall_constraint(Constraint_5_5) {\n')
+                        f_library.write('\t\t  index_1(\"0.0042, 0.0307, 0.0768, 0.48, 3\")\n')
+                        f_library.write('\t\t  index_2(\"0.0042, 0.0307, 0.0768, 0.48, 3\")\n')
+                        f_library.write(con_str)
+                        f_library.write('\t\t}\n')
+                        f_library.write('\t  }\n')
+
+                # elif pin['type'] == 'output':
+                    # combinational time
+
             if not pin['type'] == 'power':
                 f_library.write('\t}\n')
 
