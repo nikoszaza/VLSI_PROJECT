@@ -1187,6 +1187,67 @@ def run_timing(cell):
             os.system("ngspice measure_files/"+cell.name+"/"+spice_file+" >suppress.txt")
 
 
+def get_timing_values_comb(cell_name, is_rising, related_pin, other_pin, other_pin_val):
+    spice_dirs = os.listdir("out_measure_files/"+cell_name+"/")
+    if is_rising:
+        subname = 'timing_' + related_pin + '_rising_' + other_pin + '_' + str(other_pin_val)
+    else:
+        subname = 'timing_' + related_pin + '_falling_' + other_pin + '_' + str(other_pin_val)
+
+    slew_dict = {
+        '0.0017': {'0.0042': 0., '0.0307': 0., '0.0768': 0., '0.192': 0., '0.48': 0., '1.2': 0., '3.0': 0.},
+        '0.0062': {'0.0042': 0., '0.0307': 0., '0.0768': 0., '0.192': 0., '0.48': 0., '1.2': 0., '3.0': 0.},
+        '0.0232': {'0.0042': 0., '0.0307': 0., '0.0768': 0., '0.192': 0., '0.48': 0., '1.2': 0., '3.0': 0.},
+        '0.0865': {'0.0042': 0., '0.0307': 0., '0.0768': 0., '0.192': 0., '0.48': 0., '1.2': 0., '3.0': 0.},
+        '0.3221': {'0.0042': 0., '0.0307': 0., '0.0768': 0., '0.192': 0., '0.48': 0., '1.2': 0., '3.0': 0.},
+        '1.2':    {'0.0042': 0., '0.0307': 0., '0.0768': 0., '0.192': 0., '0.48': 0., '1.2': 0., '3.0': 0.},
+    }
+
+    delay_dict = {
+        '0.0017': {'0.0042': 0., '0.0307': 0., '0.0768': 0., '0.192': 0., '0.48': 0., '1.2': 0., '3.0': 0.},
+        '0.0062': {'0.0042': 0., '0.0307': 0., '0.0768': 0., '0.192': 0., '0.48': 0., '1.2': 0., '3.0': 0.},
+        '0.0232': {'0.0042': 0., '0.0307': 0., '0.0768': 0., '0.192': 0., '0.48': 0., '1.2': 0., '3.0': 0.},
+        '0.0865': {'0.0042': 0., '0.0307': 0., '0.0768': 0., '0.192': 0., '0.48': 0., '1.2': 0., '3.0': 0.},
+        '0.3221': {'0.0042': 0., '0.0307': 0., '0.0768': 0., '0.192': 0., '0.48': 0., '1.2': 0., '3.0': 0.},
+        '1.2':    {'0.0042': 0., '0.0307': 0., '0.0768': 0., '0.192': 0., '0.48': 0., '1.2': 0., '3.0': 0.},
+    }
+
+    for filename in spice_dirs:
+        if subname in filename:
+            file = open("out_measure_files/"+cell_name+"/"+filename)
+            file_data = file.read()
+            file_data_split = file_data.split(' ')
+            slew = float(file_data_split[1]) * 10**9
+            delay = float(file_data_split[3]) * 10**9
+            name_split = filename.split("_")
+            index1 = name_split[-2]
+            index2 = name_split[-3]
+            slew_dict[index1][index2] = slew
+            delay_dict[index1][index2] = delay
+            file.close()
+
+    slew_str = '\t\t  values (\"'
+    delay_str = '\t\t  values (\"'
+    outer_counter = 0
+    for index1 in slew_dict:
+        outer_counter += 1
+        inner_counter = 0
+        for index2 in slew_dict[index1]:
+            inner_counter += 1
+            slew_str += str(round(slew_dict[index1][index2],6))
+            delay_str += str(round(delay_dict[index1][index2],6))
+            if inner_counter != 7:
+                slew_str += ','
+                delay_str += ','
+        if outer_counter != 6:
+            slew_str += '\", \\\n\t\t          \"'
+            delay_str += '\", \\\n\t\t          \"'
+        else:
+            slew_str += '\");\n'
+            delay_str += '\");\n'
+
+    return slew_str, delay_str
+
 def make_library(cells):
     #header
     f_library = open("library.txt", 'w')
@@ -1223,8 +1284,8 @@ def make_library(cells):
         if cell.type == 'combinational':
             f_library.write(' Combinational cell ('+cell.name+') with drive strength'+cell.drive+'\n')
         elif cell.type == 'sequential':
-            f_library.write(' Pos.edge D-Flip-Flop with active low reset, and active low set, and drive strength' + cell.drive + '\n')
-        f_library.write('  *******************************************************************************************/\n')
+            f_library.write(' Pos.edge D-Flip-Flop with active high reset, and active high set, and drive strength ' + cell.drive + '\n')
+        f_library.write('  *******************************************************************************************/\n\n')
         f_library.write('  cell ('+cell.name+') {\n')
         if cell.type == 'sequential':
             f_library.write('\tff(\"IQ\",\"IQN\") {\n\t  next_state : \"D\";\n\t  clocked_on : \"CLK\";')
@@ -1244,25 +1305,101 @@ def make_library(cells):
             if cell.type == 'combinational':
                 if pin['type'] == 'output':
                     for timing in pin['timing']:
+                        # for other pin at 0
                         f_library.write('\n\t  timing() {\n\t\trelated_pin : \"'+timing['related_pin']+'\";\n')
                         f_library.write('\t\twhen : \"!'+timing['other_pin']+'\"\n\t\tsdf_cond : \"('+timing['other_pin']+' == 1\'b0)\";\n')
+
+                        # rising input
                         if timing['binate_type'] == 'positive 0':
                             f_library.write('\t\ttiming_sense : positive_unate;\n')
+                            f_library.write('\t\tcell_rise(Timing_template_6_7) {\n')
                         else:
                             f_library.write('\t\ttiming_sense : negative_unate;\n')
+                            f_library.write('\t\tcell_fall(Timing_template_6_7) {\n')
+                        f_library.write('\t\t  index_1 (\"0.0017, 0.0062, 0.0232, 0.0865, 0.3221, 1.2\");\n')
+                        f_library.write('\t\t  index_2 (\"0.0042, 0.0307, 0.0768, 0.192, 0.48, 1.2, 3\");\n')
+                        slew_str, delay_str = get_timing_values_comb(cell.name, True, timing['related_pin'], timing['other_pin'], 0)
+                        f_library.write(delay_str)
+                        f_library.write('\t\t}\n')
+                        if timing['binate_type'] == 'positive 0':
+                            f_library.write('\t\trise_transition(Timing_template_6_7) {\n')
+                        else:
+                            f_library.write('\t\tfall_transition(Timing_template_6_7) {\n')
+                        f_library.write('\t\t  index_1 (\"0.0017, 0.0062, 0.0232, 0.0865, 0.3221, 1.2\");\n')
+                        f_library.write('\t\t  index_2 (\"0.0042, 0.0307, 0.0768, 0.192, 0.48, 1.2, 3\");\n')
+                        f_library.write(slew_str)
+                        f_library.write('\t\t}\n')
+
+                        # falling input
+                        slew_str, delay_str = get_timing_values_comb(cell.name, False, timing['related_pin'], timing['other_pin'], 0)
+                        if timing['binate_type'] == 'positive 0':
+                            f_library.write('\t\tcell_fall(Timing_template_6_7) {\n')
+                        else:
+                            f_library.write('\t\tcell_rise(Timing_template_6_7) {\n')
+                        f_library.write('\t\t  index_1 (\"0.0017, 0.0062, 0.0232, 0.0865, 0.3221, 1.2\");\n')
+                        f_library.write('\t\t  index_2 (\"0.0042, 0.0307, 0.0768, 0.192, 0.48, 1.2, 3\");\n')
+                        f_library.write(delay_str)
+                        f_library.write('\t\t}\n')
+                        if timing['binate_type'] == 'positive 0':
+                            f_library.write('\t\tfall_transition(Timing_template_6_7) {\n')
+                        else:
+                            f_library.write('\t\trise_transition(Timing_template_6_7) {\n')
+                        f_library.write('\t\t  index_1 (\"0.0017, 0.0062, 0.0232, 0.0865, 0.3221, 1.2\");\n')
+                        f_library.write('\t\t  index_2 (\"0.0042, 0.0307, 0.0768, 0.192, 0.48, 1.2, 3\");\n')
+                        f_library.write(slew_str)
+                        f_library.write('\t\t}\n')
+
                         f_library.write('\t  }\n\n')
 
+                        # for other pin at 1
                         f_library.write('\n\t  timing() {\n\t\trelated_pin : \"' + timing['related_pin'] + '\";\n')
                         f_library.write('\t\twhen : \"' + timing['other_pin'] + '\"\n\t\tsdf_cond : \"('+timing['other_pin']+' == 1\'b1)\";\n')
+
+                        # for rising input
                         if timing['binate_type'] == 'positive 0':
                             f_library.write('\t\ttiming_sense : negative_unate;\n')
+                            f_library.write('\t\tcell_fall(Timing_template_6_7) {\n')
                         else:
                             f_library.write('\t\ttiming_sense : positive_unate;\n')
+                            f_library.write('\t\tcell_rise(Timing_template_6_7) {\n')
+                        f_library.write('\t\t  index_1 (\"0.0017, 0.0062, 0.0232, 0.0865, 0.3221, 1.2\");\n')
+                        f_library.write('\t\t  index_2 (\"0.0042, 0.0307, 0.0768, 0.192, 0.48, 1.2, 3\");\n')
+                        slew_str, delay_str = get_timing_values_comb(cell.name, True, timing['related_pin'],timing['other_pin'], 1)
+                        f_library.write(delay_str)
+                        f_library.write('\t\t}\n')
+                        if timing['binate_type'] == 'positive 0':
+                            f_library.write('\t\tfall_transition(Timing_template_6_7) {\n')
+                        else:
+                            f_library.write('\t\trise_transition(Timing_template_6_7) {\n')
+                        f_library.write('\t\t  index_1 (\"0.0017, 0.0062, 0.0232, 0.0865, 0.3221, 1.2\");\n')
+                        f_library.write('\t\t  index_2 (\"0.0042, 0.0307, 0.0768, 0.192, 0.48, 1.2, 3\");\n')
+                        f_library.write(slew_str)
+                        f_library.write('\t\t}\n')
+
+                        # falling input
+                        slew_str, delay_str = get_timing_values_comb(cell.name, False, timing['related_pin'], timing['other_pin'], 1)
+                        if timing['binate_type'] == 'positive 0':
+                            f_library.write('\t\tcell_rise(Timing_template_6_7) {\n')
+                        else:
+                            f_library.write('\t\tcell_fall(Timing_template_6_7) {\n')
+                        f_library.write('\t\t  index_1 (\"0.0017, 0.0062, 0.0232, 0.0865, 0.3221, 1.2\");\n')
+                        f_library.write('\t\t  index_2 (\"0.0042, 0.0307, 0.0768, 0.192, 0.48, 1.2, 3\");\n')
+                        f_library.write(delay_str)
+                        f_library.write('\t\t}\n')
+                        if timing['binate_type'] == 'positive 0':
+                            f_library.write('\t\trise_transition(Timing_template_6_7) {\n')
+                        else:
+                            f_library.write('\t\tfall_transition(Timing_template_6_7) {\n')
+                        f_library.write('\t\t  index_1 (\"0.0017, 0.0062, 0.0232, 0.0865, 0.3221, 1.2\");\n')
+                        f_library.write('\t\t  index_2 (\"0.0042, 0.0307, 0.0768, 0.192, 0.48, 1.2, 3\");\n')
+                        f_library.write(slew_str)
+                        f_library.write('\t\t}\n')
+                        
                         f_library.write('\t  }\n\n')
             if not pin['type'] == 'power':
                 f_library.write('\t}\n')
 
-        f_library.write('  }\n')
+        f_library.write('  }\n\n')
 
 
 
