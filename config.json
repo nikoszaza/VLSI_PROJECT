@@ -9,12 +9,106 @@
 			{
 				"name": "A",
 				"type": "input",
-				"capacitance": "0.003"
+				"capacitance": "0.030"
 			},
 			{
 				"name": "B",
 				"type": "input",
-				"capacitance": "0.003"
+				"capacitance": "0.032"
+			},
+			{
+				"name": "vdd",
+				"type": "power"
+			},
+			{
+				"name": "fxor",
+				"type": "output",
+				"max_capacitance": "1.2",
+				"function": "(A ^ B)",
+				"timing": [
+					{
+						"related_pin": "A",
+						"timing_sense": "binate",
+						"binate_type": "positive 0",
+						"other_pin": "B",
+						"loads": ["0.0017" ,"0.0062", "0.0232", "0.0865", "0.3221", "1.2"],
+						"source_slews": ["0.0042", "0.0307", "0.0768", "0.192", "0.48", "1.2", "3"]
+					},
+					{
+						"related_pin": "B",
+						"timing_sense": "binate",
+						"binate_type": "positive 0",
+						"other_pin": "A",
+						"loads": ["0.0017" ,"0.0062", "0.0232", "0.0865", "0.3221", "1.2"],
+						"source_slews": ["0.0042", "0.0307", "0.0768", "0.192", "0.48", "1.2", "3"]
+					}
+				] 
+			}
+		]
+	},
+	{	
+		"name": "XOR_HIGH",
+		"type": "combinational",
+		"path": "/home/znikolaos-g/VLSI/Project/Part2/xor_high.spice",
+		"signature": "fxor A B vdd",
+		"drive": "X2",
+		"pins": [
+			{
+				"name": "A",
+				"type": "input",
+				"capacitance": "0.028"
+			},
+			{
+				"name": "B",
+				"type": "input",
+				"capacitance": "0.028"
+			},
+			{
+				"name": "vdd",
+				"type": "power"
+			},
+			{
+				"name": "fxor",
+				"type": "output",
+				"max_capacitance": "1.2",
+				"function": "(A ^ B)",
+				"timing": [
+					{
+						"related_pin": "A",
+						"timing_sense": "binate",
+						"binate_type": "positive 0",
+						"other_pin": "B",
+						"loads": ["0.0017" ,"0.0062", "0.0232", "0.0865", "0.3221", "1.2"],
+						"source_slews": ["0.0042", "0.0307", "0.0768", "0.192", "0.48", "1.2", "3"]
+					},
+					{
+						"related_pin": "B",
+						"timing_sense": "binate",
+						"binate_type": "positive 0",
+						"other_pin": "A",
+						"loads": ["0.0017" ,"0.0062", "0.0232", "0.0865", "0.3221", "1.2"],
+						"source_slews": ["0.0042", "0.0307", "0.0768", "0.192", "0.48", "1.2", "3"]
+					}
+				] 
+			}
+		]
+	},
+	{	
+		"name": "XOR_MULTI",
+		"type": "combinational",
+		"path": "/home/znikolaos-g/VLSI/Project/Part2/xor_multifinger.spice",
+		"signature": "fxor A B vdd",
+		"drive": "X2",
+		"pins": [
+			{
+				"name": "A",
+				"type": "input",
+				"capacitance": "0.069"
+			},
+			{
+				"name": "B",
+				"type": "input",
+				"capacitance": "0.079"
 			},
 			{
 				"name": "vdd",
@@ -56,12 +150,106 @@
 			{
 				"name": "A",
 				"type": "input",
-				"capacitance": "0.003"
+				"capacitance": "0.031"
 			},
 			{
 				"name": "B",
 				"type": "input",
-				"capacitance": "0.003"
+				"capacitance": "0.032"
+			},
+			{
+				"name": "vdd",
+				"type": "power"
+			},
+			{
+				"name": "xnor",
+				"type": "output",
+				"max_capacitance": "1.2",
+				"function": "!(A ^ B)",
+				"timing": [
+					{
+						"related_pin": "A",
+						"timing_sense": "binate",
+						"binate_type": "negative 0",
+						"other_pin": "B",
+						"loads": ["0.0017" ,"0.0062", "0.0232", "0.0865", "0.3221", "1.2"],
+						"source_slews": ["0.0042", "0.0307", "0.0768", "0.192", "0.48", "1.2", "3"]
+					},
+					{
+						"related_pin": "B",
+						"timing_sense": "binate",
+						"binate_type": "negative 0",
+						"other_pin": "A",
+						"loads": ["0.0017" ,"0.0062", "0.0232", "0.0865", "0.3221", "1.2"],
+						"source_slews": ["0.0042", "0.0307", "0.0768", "0.192", "0.48", "1.2", "3"]
+					}
+				] 
+			}
+		]
+	},
+	{	
+		"name": "XNOR_HIGH",
+		"type": "combinational",
+		"path": "/home/znikolaos-g/VLSI/Project/Part2/xnor_high.spice",
+		"signature": "xnor A B vdd",
+		"drive": "X2",
+		"pins": [
+			{
+				"name": "A",
+				"type": "input",
+				"capacitance": "0.032"
+			},
+			{
+				"name": "B",
+				"type": "input",
+				"capacitance": "0.032"
+			},
+			{
+				"name": "vdd",
+				"type": "power"
+			},
+			{
+				"name": "xnor",
+				"type": "output",
+				"max_capacitance": "1.2",
+				"function": "!(A ^ B)",
+				"timing": [
+					{
+						"related_pin": "A",
+						"timing_sense": "binate",
+						"binate_type": "negative 0",
+						"other_pin": "B",
+						"loads": ["0.0017" ,"0.0062", "0.0232", "0.0865", "0.3221", "1.2"],
+						"source_slews": ["0.0042", "0.0307", "0.0768", "0.192", "0.48", "1.2", "3"]
+					},
+					{
+						"related_pin": "B",
+						"timing_sense": "binate",
+						"binate_type": "negative 0",
+						"other_pin": "A",
+						"loads": ["0.0017" ,"0.0062", "0.0232", "0.0865", "0.3221", "1.2"],
+						"source_slews": ["0.0042", "0.0307", "0.0768", "0.192", "0.48", "1.2", "3"]
+					}
+				] 
+			}
+		]
+	},
+	{	
+		"name": "XNOR_MULTI",
+		"type": "combinational",
+		"path": "/home/znikolaos-g/VLSI/Project/Part2/xnor_multifinger.spice",
+		"signature": "xnor A B vdd",
+		"drive": "X2",
+		"pins": [
+			{
+				"name": "A",
+				"type": "input",
+				"capacitance": "0.064"
+			},
+			{
+				"name": "B",
+				"type": "input",
+				"capacitance": "0.074"
 			},
 			{
 				"name": "vdd",
@@ -122,7 +310,7 @@
 			{
 				"name": "S",
 				"type": "preset",
-				"capacitance": "0.003",
+				"capacitance": "0.060",
 				"timing": [
 					{
 						"related_pin": "CLK",
@@ -141,7 +329,7 @@
 			{
 				"name": "R",
 				"type": "clear",
-				"capacitance": "0.003",
+				"capacitance": "0.038",
 				"timing": [
 					{
 						"related_pin": "CLK",
@@ -159,7 +347,7 @@
 			},
 			{
 				"name": "CLK",
-				"capacitance": "0.003",
+				"capacitance": "0.027",
 				"type": "clock"
 			},
 			{

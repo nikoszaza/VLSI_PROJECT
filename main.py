@@ -1507,7 +1507,7 @@ def make_library(cells):
         f_library.write('\n  /******************************************************************************************\n')
         f_library.write('   Module          	: ' + cell.name + '\n   Cell Description	:')
         if cell.type == 'combinational':
-            f_library.write(' Combinational cell ('+cell.name+') with drive strength'+cell.drive+'\n')
+            f_library.write(' Combinational cell ('+cell.name+') with drive strength '+cell.drive+'\n')
         elif cell.type == 'sequential':
             f_library.write(' Pos.edge D-Flip-Flop with active high reset, and active high set, and drive strength ' + cell.drive + '\n')
         f_library.write('  *******************************************************************************************/\n\n')
