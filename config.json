@@ -23,7 +23,7 @@
 			{
 				"name": "fxor",
 				"type": "output",
-				"max_capacitance": "0.6064",
+				"max_capacitance": "1.2",
 				"function": "(A ^ B)",
 				"timing": [
 					{
@@ -70,7 +70,7 @@
 			{
 				"name": "xnor",
 				"type": "output",
-				"max_capacitance": "0.6064",
+				"max_capacitance": "1.2",
 				"function": "!(A ^ B)",
 				"timing": [
 					{
@@ -170,7 +170,7 @@
 				"name": "Q",
 				"type": "output",
 				"function": "IQ",
-				"max_capacitance": "0.2128",
+				"max_capacitance": "1.2",
 				"timing": [
 					{
 						"related_pin": "CLK",
@@ -199,7 +199,7 @@
 				"name": "Qm",
 				"type": "output",
 				"function": "IQN",
-				"max_capacitance": "0.2128",
+				"max_capacitance": "1.2",
 				"timing": [
 					{
 						"related_pin": "CLK",

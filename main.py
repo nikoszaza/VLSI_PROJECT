@@ -1174,7 +1174,7 @@ def run_removal(cell):
                 break
 
 def run_timing(cell):
-    if cell.type== 'sequential':
+    if cell.type == 'sequential':
         tim_dirs = os.listdir("measure_files/"+cell.name+"/timing/")
         for out_dir in tim_dirs:
             for rel_in_dir in os.listdir("measure_files/"+cell.name+"/timing/"+out_dir):
@@ -1249,13 +1249,118 @@ def get_timing_values_comb(cell_name, is_rising, related_pin, other_pin, other_p
     return slew_str, delay_str
 
 
+def get_timing_values_seq(cell_name, is_rising, function, related_pin, d_pos, c_pos):
+    slew_dict = {
+        '0.0017': {'0.0042': 0., '0.0307': 0., '0.0768': 0., '0.192': 0., '0.48': 0., '1.2': 0., '3.0': 0.},
+        '0.0062': {'0.0042': 0., '0.0307': 0., '0.0768': 0., '0.192': 0., '0.48': 0., '1.2': 0., '3.0': 0.},
+        '0.0232': {'0.0042': 0., '0.0307': 0., '0.0768': 0., '0.192': 0., '0.48': 0., '1.2': 0., '3.0': 0.},
+        '0.0865': {'0.0042': 0., '0.0307': 0., '0.0768': 0., '0.192': 0., '0.48': 0., '1.2': 0., '3.0': 0.},
+        '0.3221': {'0.0042': 0., '0.0307': 0., '0.0768': 0., '0.192': 0., '0.48': 0., '1.2': 0., '3.0': 0.},
+        '1.2': {'0.0042': 0., '0.0307': 0., '0.0768': 0., '0.192': 0., '0.48': 0., '1.2': 0., '3.0': 0.},
+    }
+
+    delay_dict = {
+        '0.0017': {'0.0042': 0., '0.0307': 0., '0.0768': 0., '0.192': 0., '0.48': 0., '1.2': 0., '3.0': 0.},
+        '0.0062': {'0.0042': 0., '0.0307': 0., '0.0768': 0., '0.192': 0., '0.48': 0., '1.2': 0., '3.0': 0.},
+        '0.0232': {'0.0042': 0., '0.0307': 0., '0.0768': 0., '0.192': 0., '0.48': 0., '1.2': 0., '3.0': 0.},
+        '0.0865': {'0.0042': 0., '0.0307': 0., '0.0768': 0., '0.192': 0., '0.48': 0., '1.2': 0., '3.0': 0.},
+        '0.3221': {'0.0042': 0., '0.0307': 0., '0.0768': 0., '0.192': 0., '0.48': 0., '1.2': 0., '3.0': 0.},
+        '1.2': {'0.0042': 0., '0.0307': 0., '0.0768': 0., '0.192': 0., '0.48': 0., '1.2': 0., '3.0': 0.},
+    }
+
+    if function == 'IQ':
+        if related_pin == 'CLK':
+            if is_rising:
+                dir_name = "out_measure_files/"+ cell_name +"/timing/out/rel_clock/pos/"
+            else:
+                dir_name = "out_measure_files/" + cell_name + "/timing/out/rel_clock/zero/"
+        elif related_pin == 'S':
+            if d_pos and c_pos:
+                dir_name = "out_measure_files/" + cell_name + "/timing/out/rel_set/d_c_rn/"
+            elif d_pos and not c_pos:
+                dir_name = "out_measure_files/" + cell_name + "/timing/out/rel_set/d_cn_rn/"
+            elif not d_pos and c_pos:
+                dir_name = "out_measure_files/" + cell_name + "/timing/out/rel_set/dn_c_rn/"
+            elif not d_pos and not c_pos:
+                dir_name = "out_measure_files/" + cell_name + "/timing/out/rel_set/dn_cn_rn/"
+        elif related_pin == 'R':
+            if d_pos and c_pos:
+                dir_name = "out_measure_files/" + cell_name + "/timing/out/rel_clear/d_c_sn/"
+            elif d_pos and not c_pos:
+                dir_name = "out_measure_files/" + cell_name + "/timing/out/rel_clear/d_cn_sn/"
+            elif not d_pos and c_pos:
+                dir_name = "out_measure_files/" + cell_name + "/timing/out/rel_clear/dn_c_sn/"
+            elif not d_pos and not c_pos:
+                dir_name = "out_measure_files/" + cell_name + "/timing/out/rel_clear/dn_cn_sn/"
+    elif function == 'IQN':
+        if related_pin == 'CLK':
+            if is_rising:
+                dir_name = "out_measure_files/"+ cell_name + "/timing/outn/rel_clock/pos/"
+            else:
+                dir_name = "out_measure_files/" + cell_name + "/timing/outn/rel_clock/zero/"
+        elif related_pin == 'S':
+            if d_pos and c_pos:
+                dir_name = "out_measure_files/" + cell_name + "/timing/outn/rel_set/d_c_rn/"
+            elif d_pos and not c_pos:
+                dir_name = "out_measure_files/" + cell_name + "/timing/outn/rel_set/d_cn_rn/"
+            elif not d_pos and c_pos:
+                dir_name = "out_measure_files/" + cell_name + "/timing/outn/rel_set/dn_c_rn/"
+            elif not d_pos and not c_pos:
+                dir_name = "out_measure_files/" + cell_name + "/timing/outn/rel_set/dn_cn_rn/"
+        elif related_pin == 'R':
+            if d_pos and c_pos:
+                dir_name = "out_measure_files/" + cell_name + "/timing/outn/rel_clear/d_c_sn/"
+            elif d_pos and not c_pos:
+                dir_name = "out_measure_files/" + cell_name + "/timing/outn/rel_clear/d_cn_sn/"
+            elif not d_pos and c_pos:
+                dir_name = "out_measure_files/" + cell_name + "/timing/outn/rel_clear/dn_c_sn/"
+            elif not d_pos and not c_pos:
+                dir_name = "out_measure_files/" + cell_name + "/timing/outn/rel_clear/dn_cn_sn/"
+    spice_files = os.listdir(dir_name)
+
+    for filename in spice_files:
+        file = open(dir_name + filename)
+        file_data = file.read()
+        file_data_split = file_data.split(' ')
+        slew = float(file_data_split[1]) * 10 ** 9
+        delay = float(file_data_split[3]) * 10 ** 9
+        name_split = filename.split("_")
+        index1 = name_split[-2]
+        index2 = name_split[-3]
+        slew_dict[index1][index2] = slew
+        delay_dict[index1][index2] = delay
+        file.close()
+
+    slew_str = '\t\t  values (\"'
+    delay_str = '\t\t  values (\"'
+    outer_counter = 0
+    for index1 in slew_dict:
+        outer_counter += 1
+        inner_counter = 0
+        for index2 in slew_dict[index1]:
+            inner_counter += 1
+            slew_str += str(round(slew_dict[index1][index2], 6))
+            delay_str += str(round(delay_dict[index1][index2], 6))
+            if inner_counter != 7:
+                slew_str += ','
+                delay_str += ','
+        if outer_counter != 6:
+            slew_str += '\", \\\n\t\t          \"'
+            delay_str += '\", \\\n\t\t          \"'
+        else:
+            slew_str += '\");\n'
+            delay_str += '\");\n'
+
+    return slew_str, delay_str
+
+
 def get_constraint_values(cell_name, constraint_type, is_rising, pin_type):
     con_dict = {
         '0.0042': {'0.0042': 0., '0.0307': 0., '0.0768': 0., '0.48': 0., '3.0': 0.},
         '0.0307': {'0.0042': 0., '0.0307': 0., '0.0768': 0., '0.48': 0., '3.0': 0.},
         '0.0768': {'0.0042': 0., '0.0307': 0., '0.0768': 0., '0.48': 0., '3.0': 0.},
-        '0.48': {'0.0042': 0., '0.0307': 0., '0.0768': 0., '0.48': 0., '3.0': 0.},
-        '3.0': {'0.0042': 0., '0.0307': 0., '0.0768': 0., '0.48': 0., '3.0': 0.},
+        '0.48':   {'0.0042': 0., '0.0307': 0., '0.0768': 0., '0.48': 0., '3.0': 0.},
+        '3.0':    {'0.0042': 0., '0.0307': 0., '0.0768': 0., '0.48': 0., '3.0': 0.},
     }
 
     if constraint_type == 'setup_rising':
@@ -1558,8 +1663,319 @@ def make_library(cells):
                         f_library.write('\t\t}\n')
                         f_library.write('\t  }\n')
 
-                # elif pin['type'] == 'output':
+                elif pin['type'] == 'output':
                     # combinational time
+                    for timing in pin['timing']:
+                        # CLOCK to Q/QN timing
+                        if timing['type'] == 'rising_edge':
+                            # D pos
+                            slew_str, delay_str = get_timing_values_seq(cell.name, True, pin['function'], timing['related_pin'], None, None)
+                            f_library.write('\n\t  timing() {\n\t\trelated_pin : \"' + timing['related_pin'] + '\";\n')
+                            f_library.write('\t\ttiming_type : rising_edge;\n\t\ttiming_sense : non_unate;\n\n')
+                            if pin['function'] == 'IQ':
+                                f_library.write('\t\tcell_rise(Timing_template_6_7) {\n')
+                            elif pin['function'] == 'IQN':
+                                f_library.write('\t\tcell_fall(Timing_template_6_7) {\n')
+                            f_library.write('\t\t  index_1 (\"0.0017, 0.0062, 0.0232, 0.0865, 0.3221, 1.2\");\n')
+                            f_library.write('\t\t  index_2 (\"0.0042, 0.0307, 0.0768, 0.192, 0.48, 1.2, 3\");\n')
+                            f_library.write(delay_str)
+                            f_library.write('\n\t\t}\n')
+
+                            if pin['function'] == 'IQ':
+                                f_library.write('\t\trise_transition(Timing_template_6_7) {\n')
+                            elif pin['function'] == 'IQN':
+                                f_library.write('\t\tfall_transition(Timing_template_6_7) {\n')
+                            f_library.write('\t\t  index_1 (\"0.0017, 0.0062, 0.0232, 0.0865, 0.3221, 1.2\");\n')
+                            f_library.write('\t\t  index_2 (\"0.0042, 0.0307, 0.0768, 0.192, 0.48, 1.2, 3\");\n')
+                            f_library.write(delay_str)
+                            f_library.write('\n\t\t}\n')
+
+                            # D neg
+                            slew_str, delay_str = get_timing_values_seq(cell.name, False, pin['function'], timing['related_pin'], None, None)
+                            if pin['function'] == 'IQ':
+                                f_library.write('\t\tcell_fall(Timing_template_6_7) {\n')
+                            elif pin['function'] == 'IQN':
+                                f_library.write('\t\tcell_rise(Timing_template_6_7) {\n')
+                            f_library.write('\t\t  index_1 (\"0.0017, 0.0062, 0.0232, 0.0865, 0.3221, 1.2\");\n')
+                            f_library.write('\t\t  index_2 (\"0.0042, 0.0307, 0.0768, 0.192, 0.48, 1.2, 3\");\n')
+                            f_library.write(delay_str)
+                            f_library.write('\n\t\t}\n')
+
+                            if pin['function'] == 'IQ':
+                                f_library.write('\t\tfall_transition(Timing_template_6_7) {\n')
+                            elif pin['function'] == 'IQN':
+                                f_library.write('\t\trise_transition(Timing_template_6_7) {\n')
+                            f_library.write('\t\t  index_1 (\"0.0017, 0.0062, 0.0232, 0.0865, 0.3221, 1.2\");\n')
+                            f_library.write('\t\t  index_2 (\"0.0042, 0.0307, 0.0768, 0.192, 0.48, 1.2, 3\");\n')
+                            f_library.write(delay_str)
+                            f_library.write('\n\t\t}\n')
+                            f_library.write('\t  }\n')
+                        # R to Q/QN
+                        elif timing['type'] == 'clear':
+                            # When !c !d
+                            slew_str, delay_str = get_timing_values_seq(cell.name, None, 'IQ', 'R', False, False)
+                            f_library.write('\n\t  timing() {\n\t\trelated_pin : \"' + timing['related_pin'] + '\";\n')
+                            f_library.write('\t\twhen : \"!CLK & !D & !S\";\n')
+                            f_library.write('\t\tsdf_cond : \"(CLK == 1\'b0) && (D == 1\'b0) && (S == 1\'b0))\";\n')
+                            if pin['function'] == 'IQ':
+                                f_library.write('\t\ttiming_type : clear;\n\t\ttiming_sense : negative_unate;\n\n')
+                                f_library.write('\t\tcell_fall(Timing_template_6_7) {\n')
+                                f_library.write('\t\t  index_1 (\"0.0017, 0.0062, 0.0232, 0.0865, 0.3221, 1.2\");\n')
+                                f_library.write('\t\t  index_2 (\"0.0042, 0.0307, 0.0768, 0.192, 0.48, 1.2, 3\");\n')
+                                f_library.write(delay_str)
+                                f_library.write('\t\t}\n')
+
+                                f_library.write('\t\tfall_transition(Timing_template_6_7) {\n')
+                                f_library.write('\t\t  index_1 (\"0.0017, 0.0062, 0.0232, 0.0865, 0.3221, 1.2\");\n')
+                                f_library.write('\t\t  index_2 (\"0.0042, 0.0307, 0.0768, 0.192, 0.48, 1.2, 3\");\n')
+                                f_library.write(slew_str)
+                                f_library.write('\t\t}\n')
+                            elif pin['function'] == 'IQN':
+                                f_library.write('\t\ttiming_type : preset;\n\t\ttiming_sense : positive_unate;\n\n')
+                                f_library.write('\t\tcell_rise(Timing_template_6_7) {\n')
+                                f_library.write('\t\t  index_1 (\"0.0017, 0.0062, 0.0232, 0.0865, 0.3221, 1.2\");\n')
+                                f_library.write('\t\t  index_2 (\"0.0042, 0.0307, 0.0768, 0.192, 0.48, 1.2, 3\");\n')
+                                f_library.write(delay_str)
+                                f_library.write('\t\t}\n')
+
+                                f_library.write('\t\trise_transition(Timing_template_6_7) {\n')
+                                f_library.write('\t\t  index_1 (\"0.0017, 0.0062, 0.0232, 0.0865, 0.3221, 1.2\");\n')
+                                f_library.write('\t\t  index_2 (\"0.0042, 0.0307, 0.0768, 0.192, 0.48, 1.2, 3\");\n')
+                                f_library.write(slew_str)
+                                f_library.write('\t\t}\n')
+                            f_library.write('\t  }\n')
+
+                            #when !c d
+                            slew_str, delay_str = get_timing_values_seq(cell.name, None, 'IQ', 'R', True, False)
+                            f_library.write('\n\t  timing() {\n\t\trelated_pin : \"' + timing['related_pin'] + '\";\n')
+                            f_library.write('\t\twhen : \"!CLK & D & !S\";\n')
+                            f_library.write('\t\tsdf_cond : \"(CLK == 1\'b0) && (D == 1\'b1) && (S == 1\'b0))\";\n')
+                            if pin['function'] == 'IQ':
+                                f_library.write('\t\ttiming_type : clear;\n\t\ttiming_sense : negative_unate;\n\n')
+                                f_library.write('\t\tcell_fall(Timing_template_6_7) {\n')
+                                f_library.write('\t\t  index_1 (\"0.0017, 0.0062, 0.0232, 0.0865, 0.3221, 1.2\");\n')
+                                f_library.write('\t\t  index_2 (\"0.0042, 0.0307, 0.0768, 0.192, 0.48, 1.2, 3\");\n')
+                                f_library.write(delay_str)
+                                f_library.write('\t\t}\n')
+
+                                f_library.write('\t\tfall_transition(Timing_template_6_7) {\n')
+                                f_library.write('\t\t  index_1 (\"0.0017, 0.0062, 0.0232, 0.0865, 0.3221, 1.2\");\n')
+                                f_library.write('\t\t  index_2 (\"0.0042, 0.0307, 0.0768, 0.192, 0.48, 1.2, 3\");\n')
+                                f_library.write(slew_str)
+                                f_library.write('\t\t}\n')
+                            elif pin['function'] == 'IQN':
+                                f_library.write('\t\ttiming_type : preset;\n\t\ttiming_sense : positive_unate;\n\n')
+                                f_library.write('\t\tcell_rise(Timing_template_6_7) {\n')
+                                f_library.write('\t\t  index_1 (\"0.0017, 0.0062, 0.0232, 0.0865, 0.3221, 1.2\");\n')
+                                f_library.write('\t\t  index_2 (\"0.0042, 0.0307, 0.0768, 0.192, 0.48, 1.2, 3\");\n')
+                                f_library.write(delay_str)
+                                f_library.write('\t\t}\n')
+
+                                f_library.write('\t\trise_transition(Timing_template_6_7) {\n')
+                                f_library.write('\t\t  index_1 (\"0.0017, 0.0062, 0.0232, 0.0865, 0.3221, 1.2\");\n')
+                                f_library.write('\t\t  index_2 (\"0.0042, 0.0307, 0.0768, 0.192, 0.48, 1.2, 3\");\n')
+                                f_library.write(slew_str)
+                                f_library.write('\t\t}\n')
+                            f_library.write('\t  }\n')
+
+                            # when c !d
+                            slew_str, delay_str = get_timing_values_seq(cell.name, None, 'IQ', 'R', False, True)
+                            f_library.write('\n\t  timing() {\n\t\trelated_pin : \"' + timing['related_pin'] + '\";\n')
+                            f_library.write('\t\twhen : \"CLK & !D & !S\";\n')
+                            f_library.write('\t\tsdf_cond : \"(CLK == 1\'b1) && (D == 1\'b0) && (S == 1\'b0))\";\n')
+                            if pin['function'] == 'IQ':
+                                f_library.write('\t\ttiming_type : clear;\n\t\ttiming_sense : negative_unate;\n\n')
+                                f_library.write('\t\tcell_fall(Timing_template_6_7) {\n')
+                                f_library.write('\t\t  index_1 (\"0.0017, 0.0062, 0.0232, 0.0865, 0.3221, 1.2\");\n')
+                                f_library.write('\t\t  index_2 (\"0.0042, 0.0307, 0.0768, 0.192, 0.48, 1.2, 3\");\n')
+                                f_library.write(delay_str)
+                                f_library.write('\t\t}\n')
+
+                                f_library.write('\t\tfall_transition(Timing_template_6_7) {\n')
+                                f_library.write('\t\t  index_1 (\"0.0017, 0.0062, 0.0232, 0.0865, 0.3221, 1.2\");\n')
+                                f_library.write('\t\t  index_2 (\"0.0042, 0.0307, 0.0768, 0.192, 0.48, 1.2, 3\");\n')
+                                f_library.write(slew_str)
+                                f_library.write('\t\t}\n')
+                            elif pin['function'] == 'IQN':
+                                f_library.write('\t\ttiming_type : preset;\n\t\ttiming_sense : positive_unate;\n\n')
+                                f_library.write('\t\tcell_rise(Timing_template_6_7) {\n')
+                                f_library.write('\t\t  index_1 (\"0.0017, 0.0062, 0.0232, 0.0865, 0.3221, 1.2\");\n')
+                                f_library.write('\t\t  index_2 (\"0.0042, 0.0307, 0.0768, 0.192, 0.48, 1.2, 3\");\n')
+                                f_library.write(delay_str)
+                                f_library.write('\t\t}\n')
+
+                                f_library.write('\t\trise_transition(Timing_template_6_7) {\n')
+                                f_library.write('\t\t  index_1 (\"0.0017, 0.0062, 0.0232, 0.0865, 0.3221, 1.2\");\n')
+                                f_library.write('\t\t  index_2 (\"0.0042, 0.0307, 0.0768, 0.192, 0.48, 1.2, 3\");\n')
+                                f_library.write(slew_str)
+                                f_library.write('\t\t}\n')
+                            f_library.write('\t  }\n')
+
+                            # when c d
+                            slew_str, delay_str = get_timing_values_seq(cell.name, None, 'IQ', 'R', True, True)
+                            f_library.write('\n\t  timing() {\n\t\trelated_pin : \"' + timing['related_pin'] + '\";\n')
+                            f_library.write('\t\twhen : \"CLK & D & !S\";\n')
+                            f_library.write('\t\tsdf_cond : \"(CLK == 1\'b1) && (D == 1\'b1) && (S == 1\'b0))\";\n')
+                            if pin['function'] == 'IQ':
+                                f_library.write('\t\ttiming_type : clear;\n\t\ttiming_sense : negative_unate;\n\n')
+                                f_library.write('\t\tcell_fall(Timing_template_6_7) {\n')
+                                f_library.write('\t\t  index_1 (\"0.0017, 0.0062, 0.0232, 0.0865, 0.3221, 1.2\");\n')
+                                f_library.write('\t\t  index_2 (\"0.0042, 0.0307, 0.0768, 0.192, 0.48, 1.2, 3\");\n')
+                                f_library.write(delay_str)
+                                f_library.write('\t\t}\n')
+
+                                f_library.write('\t\tfall_transition(Timing_template_6_7) {\n')
+                                f_library.write('\t\t  index_1 (\"0.0017, 0.0062, 0.0232, 0.0865, 0.3221, 1.2\");\n')
+                                f_library.write('\t\t  index_2 (\"0.0042, 0.0307, 0.0768, 0.192, 0.48, 1.2, 3\");\n')
+                                f_library.write(slew_str)
+                                f_library.write('\t\t}\n')
+                            elif pin['function'] == 'IQN':
+                                f_library.write('\t\ttiming_type : preset;\n\t\ttiming_sense : positive_unate;\n\n')
+                                f_library.write('\t\tcell_rise(Timing_template_6_7) {\n')
+                                f_library.write('\t\t  index_1 (\"0.0017, 0.0062, 0.0232, 0.0865, 0.3221, 1.2\");\n')
+                                f_library.write('\t\t  index_2 (\"0.0042, 0.0307, 0.0768, 0.192, 0.48, 1.2, 3\");\n')
+                                f_library.write(delay_str)
+                                f_library.write('\t\t}\n')
+
+                                f_library.write('\t\trise_transition(Timing_template_6_7) {\n')
+                                f_library.write('\t\t  index_1 (\"0.0017, 0.0062, 0.0232, 0.0865, 0.3221, 1.2\");\n')
+                                f_library.write('\t\t  index_2 (\"0.0042, 0.0307, 0.0768, 0.192, 0.48, 1.2, 3\");\n')
+                                f_library.write(slew_str)
+                                f_library.write('\t\t}\n')
+                            f_library.write('\t  }\n')
+                        # S to Q/QN
+                        elif timing['type'] == 'preset':
+                            # When !c !d
+                            slew_str, delay_str = get_timing_values_seq(cell.name, None, 'IQ', 'S', False, False)
+                            f_library.write('\n\t  timing() {\n\t\trelated_pin : \"' + timing['related_pin'] + '\";\n')
+                            f_library.write('\t\twhen : \"!CLK & !D & !R\";\n')
+                            f_library.write('\t\tsdf_cond : \"(CLK == 1\'b0) && (D == 1\'b0) && (R == 1\'b0))\";\n')
+                            if pin['function'] == 'IQ':
+                                f_library.write('\t\ttiming_type : preset;\n\t\ttiming_sense : positive_unate;\n\n')
+                                f_library.write('\t\tcell_rise(Timing_template_6_7) {\n')
+                                f_library.write('\t\t  index_1 (\"0.0017, 0.0062, 0.0232, 0.0865, 0.3221, 1.2\");\n')
+                                f_library.write('\t\t  index_2 (\"0.0042, 0.0307, 0.0768, 0.192, 0.48, 1.2, 3\");\n')
+                                f_library.write(delay_str)
+                                f_library.write('\t\t}\n')
+
+                                f_library.write('\t\trise_transition(Timing_template_6_7) {\n')
+                                f_library.write('\t\t  index_1 (\"0.0017, 0.0062, 0.0232, 0.0865, 0.3221, 1.2\");\n')
+                                f_library.write('\t\t  index_2 (\"0.0042, 0.0307, 0.0768, 0.192, 0.48, 1.2, 3\");\n')
+                                f_library.write(slew_str)
+                                f_library.write('\t\t}\n')
+                            elif pin['function'] == 'IQN':
+                                f_library.write('\t\ttiming_type : clear;\n\t\ttiming_sense : negative_unate;\n\n')
+                                f_library.write('\t\tcell_fall(Timing_template_6_7) {\n')
+                                f_library.write('\t\t  index_1 (\"0.0017, 0.0062, 0.0232, 0.0865, 0.3221, 1.2\");\n')
+                                f_library.write('\t\t  index_2 (\"0.0042, 0.0307, 0.0768, 0.192, 0.48, 1.2, 3\");\n')
+                                f_library.write(delay_str)
+                                f_library.write('\t\t}\n')
+
+                                f_library.write('\t\tfall_transition(Timing_template_6_7) {\n')
+                                f_library.write('\t\t  index_1 (\"0.0017, 0.0062, 0.0232, 0.0865, 0.3221, 1.2\");\n')
+                                f_library.write('\t\t  index_2 (\"0.0042, 0.0307, 0.0768, 0.192, 0.48, 1.2, 3\");\n')
+                                f_library.write(slew_str)
+                                f_library.write('\t\t}\n')
+                            f_library.write('\t  }\n')
+
+                            # when !c d
+                            slew_str, delay_str = get_timing_values_seq(cell.name, None, 'IQ', 'S', True, False)
+                            f_library.write('\n\t  timing() {\n\t\trelated_pin : \"' + timing['related_pin'] + '\";\n')
+                            f_library.write('\t\twhen : \"!CLK & D & !R\";\n')
+                            f_library.write('\t\tsdf_cond : \"(CLK == 1\'b0) && (D == 1\'b1) && (R == 1\'b0))\";\n')
+                            if pin['function'] == 'IQ':
+                                f_library.write('\t\ttiming_type : preset;\n\t\ttiming_sense : positive_unate;\n\n')
+                                f_library.write('\t\tcell_rise(Timing_template_6_7) {\n')
+                                f_library.write('\t\t  index_1 (\"0.0017, 0.0062, 0.0232, 0.0865, 0.3221, 1.2\");\n')
+                                f_library.write('\t\t  index_2 (\"0.0042, 0.0307, 0.0768, 0.192, 0.48, 1.2, 3\");\n')
+                                f_library.write(delay_str)
+                                f_library.write('\t\t}\n')
+
+                                f_library.write('\t\trise_transition(Timing_template_6_7) {\n')
+                                f_library.write('\t\t  index_1 (\"0.0017, 0.0062, 0.0232, 0.0865, 0.3221, 1.2\");\n')
+                                f_library.write('\t\t  index_2 (\"0.0042, 0.0307, 0.0768, 0.192, 0.48, 1.2, 3\");\n')
+                                f_library.write(slew_str)
+                                f_library.write('\t\t}\n')
+                            elif pin['function'] == 'IQN':
+                                f_library.write('\t\ttiming_type : clear;\n\t\ttiming_sense : negative_unate;\n\n')
+                                f_library.write('\t\tcell_fall(Timing_template_6_7) {\n')
+                                f_library.write('\t\t  index_1 (\"0.0017, 0.0062, 0.0232, 0.0865, 0.3221, 1.2\");\n')
+                                f_library.write('\t\t  index_2 (\"0.0042, 0.0307, 0.0768, 0.192, 0.48, 1.2, 3\");\n')
+                                f_library.write(delay_str)
+                                f_library.write('\t\t}\n')
+
+                                f_library.write('\t\tfall_transition(Timing_template_6_7) {\n')
+                                f_library.write('\t\t  index_1 (\"0.0017, 0.0062, 0.0232, 0.0865, 0.3221, 1.2\");\n')
+                                f_library.write('\t\t  index_2 (\"0.0042, 0.0307, 0.0768, 0.192, 0.48, 1.2, 3\");\n')
+                                f_library.write(slew_str)
+                                f_library.write('\t\t}\n')
+                            f_library.write('\t  }\n')
+
+                            # when c !d
+                            slew_str, delay_str = get_timing_values_seq(cell.name, None, 'IQ', 'S', False, True)
+                            f_library.write('\n\t  timing() {\n\t\trelated_pin : \"' + timing['related_pin'] + '\";\n')
+                            f_library.write('\t\twhen : \"CLK & !D & !R\";\n')
+                            f_library.write('\t\tsdf_cond : \"(CLK == 1\'b1) && (D == 1\'b0) && (R == 1\'b0))\";\n')
+                            if pin['function'] == 'IQ':
+                                f_library.write('\t\ttiming_type : preset;\n\t\ttiming_sense : positive_unate;\n\n')
+                                f_library.write('\t\tcell_rise(Timing_template_6_7) {\n')
+                                f_library.write('\t\t  index_1 (\"0.0017, 0.0062, 0.0232, 0.0865, 0.3221, 1.2\");\n')
+                                f_library.write('\t\t  index_2 (\"0.0042, 0.0307, 0.0768, 0.192, 0.48, 1.2, 3\");\n')
+                                f_library.write(delay_str)
+                                f_library.write('\t\t}\n')
+
+                                f_library.write('\t\trise_transition(Timing_template_6_7) {\n')
+                                f_library.write('\t\t  index_1 (\"0.0017, 0.0062, 0.0232, 0.0865, 0.3221, 1.2\");\n')
+                                f_library.write('\t\t  index_2 (\"0.0042, 0.0307, 0.0768, 0.192, 0.48, 1.2, 3\");\n')
+                                f_library.write(slew_str)
+                                f_library.write('\t\t}\n')
+                            elif pin['function'] == 'IQN':
+                                f_library.write('\t\ttiming_type : clear;\n\t\ttiming_sense : negative_unate;\n\n')
+                                f_library.write('\t\tcell_fall(Timing_template_6_7) {\n')
+                                f_library.write('\t\t  index_1 (\"0.0017, 0.0062, 0.0232, 0.0865, 0.3221, 1.2\");\n')
+                                f_library.write('\t\t  index_2 (\"0.0042, 0.0307, 0.0768, 0.192, 0.48, 1.2, 3\");\n')
+                                f_library.write(delay_str)
+                                f_library.write('\t\t}\n')
+
+                                f_library.write('\t\tfall_transition(Timing_template_6_7) {\n')
+                                f_library.write('\t\t  index_1 (\"0.0017, 0.0062, 0.0232, 0.0865, 0.3221, 1.2\");\n')
+                                f_library.write('\t\t  index_2 (\"0.0042, 0.0307, 0.0768, 0.192, 0.48, 1.2, 3\");\n')
+                                f_library.write(slew_str)
+                                f_library.write('\t\t}\n')
+                            f_library.write('\t  }\n')
+
+                            # when c d
+                            slew_str, delay_str = get_timing_values_seq(cell.name, None, 'IQ', 'S', True, True)
+                            f_library.write('\n\t  timing() {\n\t\trelated_pin : \"' + timing['related_pin'] + '\";\n')
+                            f_library.write('\t\twhen : \"CLK & D & !R\";\n')
+                            f_library.write('\t\tsdf_cond : \"(CLK == 1\'b1) && (D == 1\'b1) && (R == 1\'b0))\";\n')
+                            if pin['function'] == 'IQ':
+                                f_library.write('\t\ttiming_type : preset;\n\t\ttiming_sense : positive_unate;\n\n')
+                                f_library.write('\t\tcell_rise(Timing_template_6_7) {\n')
+                                f_library.write('\t\t  index_1 (\"0.0017, 0.0062, 0.0232, 0.0865, 0.3221, 1.2\");\n')
+                                f_library.write('\t\t  index_2 (\"0.0042, 0.0307, 0.0768, 0.192, 0.48, 1.2, 3\");\n')
+                                f_library.write(delay_str)
+                                f_library.write('\t\t}\n')
+
+                                f_library.write('\t\trise_transition(Timing_template_6_7) {\n')
+                                f_library.write('\t\t  index_1 (\"0.0017, 0.0062, 0.0232, 0.0865, 0.3221, 1.2\");\n')
+                                f_library.write('\t\t  index_2 (\"0.0042, 0.0307, 0.0768, 0.192, 0.48, 1.2, 3\");\n')
+                                f_library.write(slew_str)
+                                f_library.write('\t\t}\n')
+                            elif pin['function'] == 'IQN':
+                                f_library.write('\t\ttiming_type : clear;\n\t\ttiming_sense : negative_unate;\n\n')
+                                f_library.write('\t\tcell_fall(Timing_template_6_7) {\n')
+                                f_library.write('\t\t  index_1 (\"0.0017, 0.0062, 0.0232, 0.0865, 0.3221, 1.2\");\n')
+                                f_library.write('\t\t  index_2 (\"0.0042, 0.0307, 0.0768, 0.192, 0.48, 1.2, 3\");\n')
+                                f_library.write(delay_str)
+                                f_library.write('\t\t}\n')
+
+                                f_library.write('\t\tfall_transition(Timing_template_6_7) {\n')
+                                f_library.write('\t\t  index_1 (\"0.0017, 0.0062, 0.0232, 0.0865, 0.3221, 1.2\");\n')
+                                f_library.write('\t\t  index_2 (\"0.0042, 0.0307, 0.0768, 0.192, 0.48, 1.2, 3\");\n')
+                                f_library.write(slew_str)
+                                f_library.write('\t\t}\n')
+                            f_library.write('\t  }\n')
 
             if not pin['type'] == 'power':
                 f_library.write('\t}\n')
