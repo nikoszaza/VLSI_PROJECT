@@ -1514,7 +1514,7 @@ def make_library(cells):
         f_library.write('  cell ('+cell.name+') {\n')
         if cell.type == 'sequential':
             f_library.write('\tff(\"IQ\",\"IQN\") {\n\t  next_state : \"D\";\n\t  clocked_on : \"CLK\";')
-            f_library.write('\n\t  preset : \"S\";\n\t  clear : \"R\";\n\t}\n')
+            f_library.write('\n\t  preset : \"S\";\n\t  clear : \"R\";\n\t  clear_preset_var1  	: L;\n\t}\n')
         f_library.write('\tarea : 1.0;\n\tpg_pin("VDD") {\n\t  voltage_name : \"VDD\";\n\t  pg_type      : primary_power;\n\t}\n')
         f_library.write('\tpg_pin("VSS") {\n\t  voltage_name : \"VSS\";\n\t  pg_type      : primary_ground;\n\t}\n\n')
         for pin in cell.pins:
@@ -1632,16 +1632,16 @@ def make_library(cells):
                         # fall constraint
                         con_str = get_constraint_values(cell.name, timing['type'], False, pin['type'])
                         f_library.write('\t\tfall_constraint(Constraint_5_5) {\n')
-                        f_library.write('\t\t  index_1(\""0.0042, 0.0307, 0.0768, 0.48, 3\")\n')
-                        f_library.write('\t\t  index_2(\""0.0042, 0.0307, 0.0768, 0.48, 3\")\n')
+                        f_library.write('\t\t  index_1(\"0.0042, 0.0307, 0.0768, 0.48, 3\");\n')
+                        f_library.write('\t\t  index_2(\"0.0042, 0.0307, 0.0768, 0.48, 3\");\n')
                         f_library.write(con_str)
                         f_library.write('\t\t}\n')
 
                         # rise constraint
                         con_str = get_constraint_values(cell.name, timing['type'], True, pin['type'])
                         f_library.write('\t\trise_constraint(Constraint_5_5) {\n')
-                        f_library.write('\t\t  index_1(\"0.0042, 0.0307, 0.0768, 0.48, 3\")\n')
-                        f_library.write('\t\t  index_2(\"0.0042, 0.0307, 0.0768, 0.48, 3\")\n')
+                        f_library.write('\t\t  index_1(\"0.0042, 0.0307, 0.0768, 0.48, 3\");\n')
+                        f_library.write('\t\t  index_2(\"0.0042, 0.0307, 0.0768, 0.48, 3\");\n')
                         f_library.write(con_str)
                         f_library.write('\t\t}\n')
                         f_library.write('\t  }\n')
@@ -1657,8 +1657,8 @@ def make_library(cells):
 
                         con_str = get_constraint_values(cell.name, timing['type'], None, pin['type'])
                         f_library.write('\t\tfall_constraint(Constraint_5_5) {\n')
-                        f_library.write('\t\t  index_1(\"0.0042, 0.0307, 0.0768, 0.48, 3\")\n')
-                        f_library.write('\t\t  index_2(\"0.0042, 0.0307, 0.0768, 0.48, 3\")\n')
+                        f_library.write('\t\t  index_1(\"0.0042, 0.0307, 0.0768, 0.48, 3\");\n')
+                        f_library.write('\t\t  index_2(\"0.0042, 0.0307, 0.0768, 0.48, 3\");\n')
                         f_library.write(con_str)
                         f_library.write('\t\t}\n')
                         f_library.write('\t  }\n')
